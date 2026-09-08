@@ -34,7 +34,7 @@ Vyplněním naší online přihlášky nám ušetříte spoustu přepisování.<
 formulář. Povinná pole jsou označena <strong>hvězdičkou</strong>.</p>
 
 <p class="mb-3">Po odeslání vám na e-mail zašleme potvrzení a PDF s vyplněnou přihláškou.
-Papírování se ale úplně vyhnout nedá — <strong>potřebujeme váš podpis</strong>.
+Papírování se ale úplně vyhnout nedá – <strong>potřebujeme váš podpis</strong>.
 PDF si proto stáhněte a buď přihlášku podepište elektronicky a pošlete na
 <a href="mailto:zuby@stezka.org" class="text-green-800 underline">zuby@stezka.org</a>,
 nebo ji vytiskněte, podepište fyzicky a <strong>přineste na blízkou schůzku</strong>.</p>
