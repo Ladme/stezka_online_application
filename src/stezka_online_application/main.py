@@ -1,4 +1,6 @@
-from nicegui import ui
+from pathlib import Path
+
+from nicegui import app, ui
 from pydantic import ValidationError
 
 from stezka_online_application._cfg import APP_TITLE, DATE_MASK, INTRO, RULES
@@ -31,7 +33,12 @@ def registration_page() -> None:
 
     with ui.column().classes("w-full max-w-2xl mx-auto p-4 md:p-8 gap-6"):
         with ui.column().classes("gap-1"):
-            ui.label(APP_TITLE).classes("serif text-3xl text-stone-900 leading-tight")
+            with ui.row().classes("w-full items-center gap-4 no-wrap"):
+                ui.image("/static/logo.png").classes("w-16 shrink-0")
+                ui.label(APP_TITLE).classes(
+                    "serif text-3xl text-stone-900 leading-tight"
+                )
+
             ui.html(INTRO).classes(
                 "w-full text-sm text-stone-700 leading-relaxed text-justify hyphens-auto"
             ).props("lang=cs")
@@ -195,7 +202,10 @@ def registration_page() -> None:
 
 
 def main() -> None:
-    ui.run(title=APP_TITLE, reload=False)
+    STATIC = Path(__file__).parent / "static"
+    app.add_static_files("/static", STATIC)
+
+    ui.run(title=APP_TITLE, reload=False, favicon=STATIC / "favicon.png")
 
 
 if __name__ in {"__main__", "__mp_main__"}:
