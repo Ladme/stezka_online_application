@@ -1,7 +1,7 @@
 from nicegui import ui
 from pydantic import ValidationError
 
-from stezka_online_application._cfg import APP_TITLE, DATE_MASK
+from stezka_online_application._cfg import APP_TITLE, DATE_MASK, INTRO, RULES
 from stezka_online_application._elements import (
     REQUIRED,
     REQUIRED_DATE,
@@ -32,9 +32,13 @@ def registration_page() -> None:
     with ui.column().classes("w-full max-w-2xl mx-auto p-4 md:p-8 gap-6"):
         with ui.column().classes("gap-1"):
             ui.label(APP_TITLE).classes("serif text-3xl text-stone-900 leading-tight")
-            ui.label(
-                "Vyplňte prosím přihlášku. Povinná pole jsou označena hvězdičkou."
-            ).classes("text-sm text-stone-600")
+            ui.html(INTRO).classes("w-full text-sm text-stone-700 leading-relaxed")
+
+        with (
+            ui.card().classes("w-full p-6 shadow-none border border-stone-300"),
+            section("Právní podmínky"),
+        ):
+            ui.markdown(RULES).classes("w-full text-sm leading-relaxed")
 
         with (
             ui.card().classes("w-full p-6 shadow-none border border-stone-300"),
@@ -123,6 +127,19 @@ def registration_page() -> None:
                 "Přidat další kontakt", ContactBlock
             )
 
+        with ui.card().classes("w-full p-6 shadow-none border border-stone-300"):
+            rules_accepted = ui.checkbox(
+                "Potvrzuji, že jsem se seznámil(a) s výše uvedenými podmínkami a souhlasím s nimi"
+            )
+            rules_error = ui.label(
+                "Bez souhlasu s pravidly nelze přihlášku odeslat."
+            ).classes("text-xs text-red-700")
+            rules_error.set_visibility(False)
+
+        rules_accepted.on_value_change(
+            lambda: rules_error.set_visibility(not rules_accepted.value)
+        )
+
         def submit() -> None:
             """Validate everything and save the answers into a dataclass."""
             checks = [
@@ -133,6 +150,7 @@ def registration_page() -> None:
                 photo_consent.validate(),
                 guardian_name.validate(),
                 contacts.validate(),
+                rules_accepted.value,
             ]
             if not all(checks):
                 ui.notify(
