@@ -7,7 +7,7 @@ from stezka_online_application._cfg import (
     APP_TITLE,
     INTRO_MANY,
     INTRO_ONE,
-    RULES,
+    LEGAL,
 )
 from stezka_online_application._common import handle_submission
 from stezka_online_application._elements import (
@@ -64,7 +64,7 @@ def registration_page() -> None:
             ui.card().classes("w-full p-6 shadow-none border border-stone-300"),
             section("Právní podmínky"),
         ):
-            ui.markdown(RULES).classes(
+            ui.markdown(LEGAL).classes(
                 "w-full pr-4 text-sm text-stone-700 leading-relaxed text-justify hyphens-auto"
             ).props("lang=cs")
 

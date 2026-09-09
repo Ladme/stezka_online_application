@@ -4,7 +4,7 @@ DATE_FORMAT = "%d.%m.%Y"
 
 DATE_MASK = "DD.MM.YYYY"
 
-RULES = """
+LEGAL = """
 ##### I. Základní informace
 
 1. Oddíl 48. PTO Stezka je organizační složkou spolku “Pionýr, z. s. – Pionýrská skupina Expedice” se sídlem na Údolní 963/58a, 602 00 Brno, IČO: 11698195. Spolek je registrován v rámci Jihomoravské krajské organizace Pionýra.
@@ -22,12 +22,17 @@ RULES = """
 
 8. Členství v oddíle může být ukončeno:
     - a. rozhodnutím osoby vykonávající rodičovskou odpovědnost – písemně;
-    - b. rozhodnutím vedení oddílu – při závažném či opakovaném porušování pravidel nebo pokynů vedoucích a nedodržení vnitřních pravidel oddílu.
-    - c. nezaplacením členského příspěvku (členství se potvrzuje každoročně uhrazením členského příspěvku)
+    - b. rozhodnutím vedení oddílu – při závažném či opakovaném porušování pravidel nebo pokynů vedoucích a nedodržení vnitřních pravidel oddílu;
+    - c. nezaplacením členského příspěvku (členství se potvrzuje každoročně uhrazením členského příspěvku).
 
 ##### IV. Členský poplatek na školní rok 2026/2027
 
-9. Poplatek byl stanoven na 1300 Kč za člena. Část je poskytnuta Jihomoravské krajské organizaci Pionýra a sdružení Pionýr, část bude sloužit na provoz oddílu. Poplatek je vybírán společně s odevzdáním přihlášky do oddílu.
+9. Poplatek pro aktivní oddílové členy byl stanoven na **1300 Kč** za člena. Část je poskytnuta Jihomoravské krajské organizaci Pionýra a sdružení Pionýr, část bude sloužit na provoz oddílu. Poplatek je vybírán společně s odevzdáním přihlášky do oddílu.
+10. Pro neaktivní členy, kteří by rádi podpořili oddíl, je možnost zaplatit 400 Kč z čehož pokryjeme registraci v Jihomoravské krajské organizaci Pionýra a malou část použijeme pro oddílovou činnost. Tito neaktivní členové zůstávají informování o dění v oddíle a mají přednostní účast na akcích před externisty. Poplatek za tábor však zůstává stejný jako pro externisty.
+
+#####  V. GDPR a dotační programy
+
+11. Odevzdáním přihlášky berete na vědomí, že osobní údaje dítěte (jméno, datum narození a údaje o účasti v aktivitách oddílu) budou v nezbytném rozsahu předávány Ministerstvu školství, mládeže a tělovýchovy a poskytovateli dotace OP JAK za účelem čerpání dotačních prostředků. Podrobné informace o zpracování osobních údajů jsou uvedeny v informačním sdělení na [stezka.org/msmt-gdpr](https://stezka.org/msmt-gdpr).
 """
 
 INTRO_ONE = """
