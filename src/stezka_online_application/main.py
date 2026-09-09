@@ -7,7 +7,9 @@ from stezka_online_application._cfg import APP_TITLE, DATE_MASK, INTRO, RULES
 from stezka_online_application._elements import (
     REQUIRED,
     REQUIRED_DATE,
+    REQUIRED_EMAIL,
     REQUIRED_NAME,
+    REQUIRED_PHONE,
     ContactBlock,
     RepeatableSection,
     YesNoField,
@@ -15,7 +17,12 @@ from stezka_online_application._elements import (
     handle_submission,
     section,
 )
-from stezka_online_application._models import BIRTH_DATE_ADAPTER, Application, Contact
+from stezka_online_application._models import (
+    BIRTH_DATE_ADAPTER,
+    Application,
+    Contact,
+    Guardian,
+)
 
 
 @ui.page("/")
@@ -124,21 +131,52 @@ def registration_page() -> None:
 
         with (
             ui.card().classes("w-full p-6 shadow-none border border-stone-300"),
-            section("Kontakt na rodiče či jiné blízké osoby"),
+            section("Osoba vykonávající rodičovskou odpovědnost"),
         ):
-            field_label(
-                "Celé jméno osoby vykonávající rodičovskou odpovědnost "
-                "oprávněné přihlásit dítě do oddílu"
-            )
+            ui.label(
+                "Osoba oprávněná přihlásit dítě do oddílu. "
+                "Potřebujeme na ni telefon i e-mail."
+            ).classes("w-full text-sm text-stone-600")
+
+            field_label("Jméno a příjmení")
             guardian_name = (
                 ui.input(validation=REQUIRED_NAME)
                 .classes("w-full")
                 .props("dense hide-bottom-space")
             )
 
-            field_label("Kontakty na rodiče či jiné blízké osoby")
+            field_label("Vztah k dítěti (např. otec, matka)")
+            guardian_relation = (
+                ui.input(validation=REQUIRED)
+                .classes("w-full")
+                .props("dense hide-bottom-space")
+            )
+
+            field_label("Telefonní číslo", required=True)
+            guardian_phone = (
+                ui.input(validation=REQUIRED_PHONE)
+                .classes("w-full")
+                .props("dense hide-bottom-space inputmode=tel")
+            )
+
+            field_label("E-mailová adresa", required=True)
+            guardian_email = (
+                ui.input(validation=REQUIRED_EMAIL)
+                .classes("w-full")
+                .props("dense hide-bottom-space inputmode=tel")
+            )
+
+        with (
+            ui.card().classes("w-full p-6 shadow-none border border-stone-300"),
+            section("Další kontakty"),
+        ):
+            ui.label(
+                "Nepovinné. Můžete uvést další osoby, které máme v případě "
+                "potřeby kontaktovat. U každé stačí telefon nebo e-mail."
+            ).classes("w-full text-sm text-stone-600")
+
             contacts: RepeatableSection[Contact] = RepeatableSection(
-                "Přidat další kontakt", ContactBlock
+                "Přidat další kontakt", ContactBlock, minimum=0
             )
 
         with ui.card().classes("w-full p-6 shadow-none border border-stone-300"):
@@ -163,6 +201,9 @@ def registration_page() -> None:
                 fit_for_activities.validate(),
                 photo_consent.validate(),
                 guardian_name.validate(),
+                guardian_relation.validate(),
+                guardian_phone.validate(),
+                guardian_email.validate(),
                 contacts.validate(),
                 rules_accepted.value,
             ]
@@ -183,7 +224,12 @@ def registration_page() -> None:
                     other_warnings=other_warnings.value,
                     child_contact=child_contact.value,
                     photo_consent=bool(photo_consent.value),
-                    guardian_name=guardian_name.value,
+                    guardian=Guardian(
+                        person=guardian_name.value,
+                        relation_to_child=guardian_relation.value,
+                        phone=guardian_phone.value,
+                        email=guardian_email.value,
+                    ),
                     contacts=contacts.values,
                 )
             except ValidationError as error:

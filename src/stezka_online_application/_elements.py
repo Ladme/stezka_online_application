@@ -43,11 +43,11 @@ OPTIONAL_EMAIL: Validation = {
 }
 
 
-def field_label(text: str, *, required: bool = True) -> None:
+def field_label(text: str, *, required: bool = True, gap: str = "-mb-8") -> None:
     """Question text placed above its input. Compulsory fields are marked with an asterisk."""
     ui.html(
         f"{text}{' <span class="text-red-600">*</span>' if required else ''}"
-    ).classes("text-sm text-stone-700 leading-snug -mb-8")
+    ).classes(f"text-sm text-stone-700 leading-snug {gap}")
 
 
 class YesNoField:
@@ -163,29 +163,37 @@ class RepeatableSection[T_co]:
         self,
         add_label: str,
         build_block: Callable[[Callable[[], None]], Block[T_co]],
+        *,
+        minimum: int = 1,
     ) -> None:
+        self._minimum = minimum
         self._build_block = build_block
         self._blocks: list[tuple[ui.element, Block[T_co]]] = []
 
-        self._container = ui.column().classes("w-full gap-6")
+        self._container = ui.column().classes("w-full gap-4")
         ui.button(add_label, icon="add", on_click=self.add_block).props(
             "flat dense no-caps"
         ).classes("self-start")
 
-        self.add_block()
+        for _ in range(minimum):
+            self.add_block()
+
+        self._container.set_visibility(bool(self._blocks))
 
     def add_block(self) -> None:
         with self._container, ui.element().classes("w-full") as block_ui:
             block = self._build_block(lambda: self._remove(block_ui))
         self._blocks.append((block_ui, block))
+        self._container.set_visibility(True)
 
     def _remove(self, block_ui: ui.element) -> None:
-        if len(self._blocks) == 1:
+        if len(self._blocks) <= self._minimum:
             ui.notify("Ponechte prosím alespoň jeden údaj.", type="warning")
             return
 
         self._container.remove(block_ui)
         self._blocks = [entry for entry in self._blocks if entry[0] is not block_ui]
+        self._container.set_visibility(bool(self._blocks))
 
     @property
     def values(self) -> tuple[T_co, ...]:
@@ -218,7 +226,7 @@ def handle_submission(application: Application) -> None:
             f"Dítě: {application.child_name}, "
             f"nar. {application.birth_date.strftime(DATE_FORMAT)}"
         )
-        ui.label(f"Přihlašuje: {application.guardian_name}")
+        ui.label(f"Přihlašuje: {application.guardian.person}")
         ui.label("Děkujeme, ozveme se vám na uvedené kontakty.").classes(
             "text-sm text-stone-600"
         )

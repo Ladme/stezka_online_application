@@ -94,13 +94,23 @@ MODEL_CONFIG = ConfigDict(str_strip_whitespace=True, extra="forbid")
 
 
 @dataclass(frozen=True, slots=True, config=MODEL_CONFIG)
-class Contact:
-    """A phone number, an e-mail address, name of the person it belongs to and their relation to the child."""
+class Guardian:
+    """The person with parental responsibility who submits the application."""
 
-    person: Text
-    relation_to_child: str
-    phone: Phone | None
-    email: EmailStr | None
+    person: FullName
+    relation_to_child: Text
+    phone: Phone
+    email: EmailStr
+
+
+@dataclass(frozen=True, slots=True, config=MODEL_CONFIG)
+class Contact:
+    """Another close person, reachable by phone or e-mail (or both)."""
+
+    person: FullName
+    relation_to_child: Text
+    phone: Phone | None = None
+    email: EmailStr | None = None
 
     @model_validator(mode="after")
     def check_reachable(self) -> Contact:
@@ -123,6 +133,6 @@ class Application:
     child_contact: str
     photo_consent: bool
 
-    # information about the parent(s)
-    guardian_name: FullName
-    contacts: Annotated[tuple[Contact, ...], Field(min_length=1)]
+    # contact information about the guardian and other people
+    guardian: Guardian
+    contacts: tuple[Contact, ...]
