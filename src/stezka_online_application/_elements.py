@@ -3,10 +3,9 @@ from typing import Any, Protocol, TypeVar
 
 from nicegui import binding, ui
 
-from stezka_online_application._cfg import DATE_FORMAT, DATE_MASK
+from stezka_online_application._cfg import DATE_MASK
 from stezka_online_application._models import (
     BIRTH_DATE_ADAPTER,
-    Application,
     Child,
     Contact,
     is_email,
@@ -223,6 +222,13 @@ class ChildBlock:
                 .props("dense hide-bottom-space")
             )
 
+            field_label("Kontakt na dítě (nepovinné)", required=False)
+            self._contact = (
+                ui.input(placeholder="Telefon nebo e-mail")
+                .classes("w-full")
+                .props("dense hide-bottom-space")
+            )
+
             self._fit = YesNoField("Zdravotní stav dítěte mu umožňuje účastnit se akcí")
 
             field_label(
@@ -241,13 +247,6 @@ class ChildBlock:
                 ui.textarea()
                 .classes("w-full")
                 .props("autogrow dense hide-bottom-space")
-            )
-
-            field_label("Kontakt na dítě", required=False)
-            self._contact = (
-                ui.input(placeholder="Telefon nebo e-mail")
-                .classes("w-full")
-                .props("dense hide-bottom-space")
             )
 
             self._photo_consent = YesNoField(
@@ -354,27 +353,3 @@ def section(
                 label.bind_text_from(children, "count", one_or_many(title, plural))
             ui.element("div").classes("h-px w-12 bg-green-800")
         return ui.column().classes("w-full gap-8")
-
-
-def handle_submission(application: Application) -> None:
-    """Hand the immutable application over to whatever should store it.
-
-    Replace the print with real persistence (database, CSV, e-mail, ...).
-    """
-    print(application)
-
-    with ui.dialog() as dialog, ui.card().classes("gap-3 p-6"):
-        ui.label("Přihláška odeslána").classes("text-lg text-stone-900")
-        with ui.column().classes("gap-1"):
-            for child in application.children:
-                ui.label(
-                    f"{child.name}, nar. {child.birth_date.strftime(DATE_FORMAT)}"
-                ).classes("text-sm")
-        ui.label(f"Přihlašuje: {application.guardian.person}").classes("text-sm")
-        ui.label(
-            f"Potvrzení a PDF s přihláškou zašleme na {application.guardian.email}."
-        ).classes("text-sm text-stone-600")
-        ui.button("Zavřít", on_click=dialog.close).props("flat no-caps").classes(
-            "self-end"
-        )
-    dialog.open()

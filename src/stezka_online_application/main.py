@@ -9,6 +9,7 @@ from stezka_online_application._cfg import (
     INTRO_ONE,
     RULES,
 )
+from stezka_online_application._common import handle_submission
 from stezka_online_application._elements import (
     REQUIRED,
     REQUIRED_EMAIL,
@@ -19,7 +20,6 @@ from stezka_online_application._elements import (
     ContactBlock,
     RepeatableSection,
     field_label,
-    handle_submission,
     one_or_many,
     section,
 )

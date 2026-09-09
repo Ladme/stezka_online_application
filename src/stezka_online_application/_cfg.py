@@ -1,6 +1,9 @@
 APP_TITLE = "Přihláška do oddílu 48. PTO Stezka"
+
 DATE_FORMAT = "%d.%m.%Y"
+
 DATE_MASK = "DD.MM.YYYY"
+
 RULES = """
 ##### I. Základní informace
 
@@ -26,6 +29,7 @@ RULES = """
 
 9. Poplatek byl stanoven na 1300 Kč za člena. Část je poskytnuta Jihomoravské krajské organizaci Pionýra a sdružení Pionýr, část bude sloužit na provoz oddílu. Poplatek je vybírán společně s odevzdáním přihlášky do oddílu.
 """
+
 INTRO_ONE = """
 <p class="mb-3">Děkujeme za zájem o přihlášení vašeho dítěte do oddílu.
 Vyplněním naší online přihlášky nám ušetříte spoustu přepisování.</p>
@@ -41,6 +45,7 @@ nebo ji vytiskněte, podepište fyzicky a <strong>přineste na blízkou schůzku
 
 <p class="mb-3">Nebojte, ještě vám to všechno připomeneme v e-mailu :)</p>
 """
+
 INTRO_MANY = """
 <p class="mb-3">Děkujeme za zájem o přihlášení vašich dětí do oddílu.
 Vyplněním naší online přihlášky nám ušetříte spoustu přepisování.</p>
@@ -55,4 +60,106 @@ PDF si proto stáhněte a buď přihlášku podepište elektronicky a pošlete n
 nebo ji vytiskněte, podepište fyzicky a <strong>přineste na blízkou schůzku</strong>.</p>
 
 <p class="mb-3">Nebojte, ještě vám to všechno připomeneme v e-mailu :)</p>
+"""
+
+RULES_ON_PRINTED_APPLICATION = (
+    "Svým podpisem potvrzuji, že jsem se seznámil(a) s podmínkami členství "
+    "v oddíle, souhlasím s nimi a s účastí dítěte na akcích oddílu. "
+    "Uvedené údaje jsou pravdivé a úplné."
+)
+
+TYPST_TEMPLATE = r"""
+#set page(paper: "a4", margin: (x: 2.2cm, y: 2cm))
+#set text(font: "New Computer Modern", size: 12pt, lang: "cs")
+#set par(justify: true)
+
+#let rule = line(length: 100%, stroke: 0.5pt + luma(180))
+
+#let heading-block(title) = block(above: 3.0em, below: 1em)[
+  #text(size: 15pt, weight: "bold")[#title]
+  #v(-1em)
+  #rule
+]
+
+#let multiline(value) = value.split("\n").join(linebreak())
+
+#let field(label, value) = grid(
+  columns: (5.2cm, 1fr),
+  gutter: 0.5em,
+  text(fill: luma(90))[#label],
+  if value == "" { text(fill: luma(140))[--] } else { multiline(value) },
+)
+
+#let yes-no(label, value) = field(label, if value { "ano" } else { "ne" })
+
+#let signature-line(caption) = block(width: 100%)[
+  #v(1.6cm)
+  #align(center)[
+    #line(length: 7cm, stroke: 0.5pt)
+    #v(-0.6em)
+    #text(size: 9pt, fill: luma(90))[#caption]
+  ]
+]
+
+#let application-page(child, guardian, contacts, rules) = [
+#block[
+  #grid(
+    columns: (1fr, 2.4cm),
+    gutter: 0.8cm,
+    align(horizon)[
+      #text(size: 20pt, weight: "bold")[Přihláška do oddílu 48. PTO Stezka]
+      #v(-0.6em)
+      #text(size: 10pt, fill: luma(90))[
+        Pionýr, z. s. -- Pionýrská skupina Expedice, Údolní 963/58a,
+        602 00 Brno, IČO: 11698195
+      ]
+    ],
+    align(horizon, image("src/stezka_online_application/static/logo.png", width: 100%)),
+  )
+]
+
+  #heading-block[Dítě]
+  #field("Jméno a příjmení", child.name)
+  #field("Datum narození", child.birth_date)
+  #field("Bydliště", child.address)
+  #field("Kontakt na dítě", child.contact)
+  #yes-no("Schopno účastnit se akcí", child.fit_for_activities)
+  #field("Zdravotní stav", child.health_details)
+  #field("Jiná upozornění", child.other_warnings)
+  #yes-no("Souhlas s fotografováním", child.photo_consent)
+
+  #heading-block[Osoba vykonávající rodičovskou odpovědnost]
+  #field("Jméno a příjmení", guardian.person)
+  #field("Vztah k dítěti", guardian.relation)
+  #field("Telefon", guardian.phone)
+  #field("E-mail", guardian.email)
+
+  #if contacts.len() > 0 [
+    #heading-block[Další kontakty]
+    #for contact in contacts [
+      #field(contact.relation, contact.person + contact.reach)
+    ]
+  ]
+
+  #heading-block[Podpisy]
+  #text(size: 12pt)[#rules]
+
+  #v(2.5em)
+  V #box(width: 4cm, repeat[.]) dne #box(width: 3cm, repeat[.])
+
+  #v(3em)
+  #grid(
+    columns: (1fr, 1fr),
+    gutter: 1.5em,
+    signature-line("podpis osoby vykonávající rodičovskou odpovědnost"),
+    signature-line("podpis dítěte (nepovinný)"),
+  )
+]
+
+#let data = json(bytes(sys.inputs.data))
+
+#for (index, child) in data.children.enumerate() [
+  #if index > 0 { pagebreak() }
+  #application-page(child, data.guardian, data.contacts, data.rules)
+]
 """
