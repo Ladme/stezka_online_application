@@ -24,10 +24,25 @@ RULES = """
 
 ##### IV. Členský poplatek na školní rok 2026/2027
 
-9. Poplatek byl stanoven na 1300 Kč. Část je poskytnuta Jihomoravské krajské organizaci Pionýra a sdružení Pionýr, část bude sloužit na provoz oddílu. Poplatek je vybírán společně s odevzdáním přihlášky do oddílu.
+9. Poplatek byl stanoven na 1300 Kč za člena. Část je poskytnuta Jihomoravské krajské organizaci Pionýra a sdružení Pionýr, část bude sloužit na provoz oddílu. Poplatek je vybírán společně s odevzdáním přihlášky do oddílu.
 """
-INTRO = """
+INTRO_ONE = """
 <p class="mb-3">Děkujeme za zájem o přihlášení vašeho dítěte do oddílu.
+Vyplněním naší online přihlášky nám ušetříte spoustu přepisování.</p>
+
+<p class="mb-3">Přečtěte si prosím pozorně informace níže a poté vyplňte
+formulář. Povinná pole jsou označena <strong>hvězdičkou</strong>.</p>
+
+<p class="mb-3">Po odeslání vám na e-mail zašleme potvrzení a PDF s vyplněnou přihláškou.
+Papírování se ale úplně vyhnout nedá – <strong>potřebujeme váš podpis</strong>.
+PDF si proto stáhněte a buď přihlášku podepište elektronicky a pošlete na
+<a href="mailto:zuby@stezka.org" class="text-green-800 underline">zuby@stezka.org</a>,
+nebo ji vytiskněte, podepište fyzicky a <strong>přineste na blízkou schůzku</strong>.</p>
+
+<p class="mb-3">Nebojte, ještě vám to všechno připomeneme v e-mailu :)</p>
+"""
+INTRO_MANY = """
+<p class="mb-3">Děkujeme za zájem o přihlášení vašich dětí do oddílu.
 Vyplněním naší online přihlášky nám ušetříte spoustu přepisování.</p>
 
 <p class="mb-3">Přečtěte si prosím pozorně informace níže a poté vyplňte

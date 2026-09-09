@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import re
 from collections.abc import Callable
-from datetime import date
 from typing import Annotated, Any
 
 from pydantic import (
@@ -120,19 +119,23 @@ class Contact:
 
 
 @dataclass(frozen=True, slots=True, config=MODEL_CONFIG)
-class Application:
-    """Immutable, validated snapshot of one submitted registration form."""
+class Child:
+    """Immutable record of a child being registered."""
 
-    # information about the child
-    child_name: FullName
-    birth_date: date
+    name: FullName
+    birth_date: BirthDate
     address: Text
     fit_for_activities: bool
     health_details: str
     other_warnings: str
-    child_contact: str
+    contact: str
     photo_consent: bool
 
-    # contact information about the guardian and other people
+
+@dataclass(frozen=True, slots=True, config=MODEL_CONFIG)
+class Application:
+    """Immutable, validated snapshot of one submitted registration form."""
+
+    children: Annotated[tuple[Child, ...], Field(min_length=1)]
     guardian: Guardian
     contacts: tuple[Contact, ...]
