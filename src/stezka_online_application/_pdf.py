@@ -4,11 +4,36 @@ from datetime import date
 import typst
 
 from stezka_online_application._cfg import (
-    DATE_FORMAT,
     RULES_ON_PRINTED_APPLICATION,
     TYPST_TEMPLATE,
 )
-from stezka_online_application._models import Application, Child, Contact, Guardian
+from stezka_online_application._models import (
+    Address,
+    Application,
+    Child,
+    Contact,
+    Guardian,
+)
+
+CZECH_MONTHS = (
+    "ledna",
+    "února",
+    "března",
+    "dubna",
+    "května",
+    "června",
+    "července",
+    "srpna",
+    "září",
+    "října",
+    "listopadu",
+    "prosince",
+)
+
+
+def czech_date(value: date) -> str:
+    """Czech long date, e.g. '3. května 2015'."""
+    return f"{value.day}. {CZECH_MONTHS[value.month - 1]} {value.year}"
 
 
 def _reach(contact: Contact) -> str:
@@ -19,8 +44,9 @@ def _reach(contact: Contact) -> str:
 def _child_data(child: Child) -> dict[str, object]:
     return {
         "name": child.name,
-        "birth_date": child.birth_date.strftime(DATE_FORMAT),
-        "address": child.address,
+        "birth_date": czech_date(child.birth_date),
+        "address": str(child.address),
+        "city": child.address.city,
         "contact": child.contact,
         "fit_for_activities": child.fit_for_activities,
         "health_details": child.health_details,
@@ -48,6 +74,7 @@ def build_pdf(application: Application) -> bytes:
             for contact in application.contacts
         ],
         "rules": RULES_ON_PRINTED_APPLICATION,
+        "date": czech_date(date.today()),  # noqa: DTZ011
     }
     return typst.compile(
         TYPST_TEMPLATE.encode(),
@@ -55,6 +82,7 @@ def build_pdf(application: Application) -> bytes:
     )
 
 
+# test building PDF
 if __name__ == "__main__":
     with open("output.pdf", "wb") as file:
         bytes = build_pdf(
@@ -63,17 +91,21 @@ if __name__ == "__main__":
                     Child(
                         name="Jan Novák",
                         birth_date=date(2015, 12, 23),
-                        address="Žitná 14, Brno, 666 66",
+                        address=Address(
+                            "Velice dlouhý název ulice pro testování zalamování textu 134/25a",
+                            "Žatec",
+                            "666 66",
+                        ),
                         fit_for_activities=True,
-                        health_details="Alergie na jód.",
-                        other_warnings="Neplavec. Nemá rád výšky.",
+                        health_details="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+                        other_warnings="Neplavec. Nemá rád výšky. Nemá rád jeskyně. Nemá rád padající listí. Nemá rád smetanu. Nemá rád, když na něj lidi mluví. Nemá rád cestování hromadnou dopravou.",
                         contact="rainbowdash6767@seznam.cz",
                         photo_consent=True,
                     ),
                     Child(
                         name="Pavlína Nováková",
                         birth_date=date(2019, 1, 4),
-                        address="Žitná 14, Brno, 666 66",
+                        address=Address("Žitná 14", "Žatec", "666 66"),
                         fit_for_activities=True,
                         health_details="",
                         other_warnings="",

@@ -70,13 +70,13 @@ RULES_ON_PRINTED_APPLICATION = (
 
 TYPST_TEMPLATE = r"""
 #set page(paper: "a4", margin: (x: 2.2cm, y: 2cm))
-#set text(font: "New Computer Modern", size: 12pt, lang: "cs")
+#set text(font: "New Computer Modern", size: 11pt, lang: "cs")
 #set par(justify: true)
 
 #let rule = line(length: 100%, stroke: 0.5pt + luma(180))
 
 #let heading-block(title) = block(above: 3.0em, below: 1em)[
-  #text(size: 15pt, weight: "bold")[#title]
+  #text(size: 14pt, weight: "bold")[#title]
   #v(-1em)
   #rule
 ]
@@ -93,23 +93,22 @@ TYPST_TEMPLATE = r"""
 #let yes-no(label, value) = field(label, if value { "ano" } else { "ne" })
 
 #let signature-line(caption) = block(width: 100%)[
-  #v(1.6cm)
   #align(center)[
     #line(length: 7cm, stroke: 0.5pt)
     #v(-0.6em)
-    #text(size: 9pt, fill: luma(90))[#caption]
+    #text(size: 8pt, fill: luma(90))[#caption]
   ]
 ]
 
-#let application-page(child, guardian, contacts, rules) = [
+#let application-page(child, guardian, contacts, rules, date) = [
 #block[
   #grid(
     columns: (1fr, 2.4cm),
     gutter: 0.8cm,
     align(horizon)[
-      #text(size: 20pt, weight: "bold")[Přihláška do oddílu 48. PTO Stezka]
+      #text(size: 18pt, weight: "bold")[Přihláška do oddílu 48. PTO Stezka]
       #v(-0.6em)
-      #text(size: 10pt, fill: luma(90))[
+      #text(size: 9pt, fill: luma(90))[
         Pionýr, z. s. -- Pionýrská skupina Expedice, Údolní 963/58a,
         602 00 Brno, IČO: 11698195
       ]
@@ -141,25 +140,25 @@ TYPST_TEMPLATE = r"""
     ]
   ]
 
-  #heading-block[Podpisy]
-  #text(size: 12pt)[#rules]
+    #heading-block[Podpisy]
+    #text(size: 11pt)[#rules]
 
-  #v(2.5em)
-  V #box(width: 4cm, repeat[.]) dne #box(width: 3cm, repeat[.])
+    #v(1.2em)
+    #align(right)[#child.city, dne #date]
 
-  #v(3em)
-  #grid(
-    columns: (1fr, 1fr),
-    gutter: 1.5em,
-    signature-line("podpis osoby vykonávající rodičovskou odpovědnost"),
-    signature-line("podpis dítěte (nepovinný)"),
-  )
+    #v(6.0em)
+    #grid(
+      columns: (1fr, 1fr),
+      gutter: 1.5em,
+      signature-line("podpis osoby vykonávající rodičovskou odpovědnost"),
+      signature-line("podpis dítěte (nepovinný)"),
+    )
 ]
 
 #let data = json(bytes(sys.inputs.data))
 
 #for (index, child) in data.children.enumerate() [
   #if index > 0 { pagebreak() }
-  #application-page(child, data.guardian, data.contacts, data.rules)
+  #application-page(child, data.guardian, data.contacts, data.rules, data.date)
 ]
 """

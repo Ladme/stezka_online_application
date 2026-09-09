@@ -19,8 +19,8 @@ def handle_submission(application: Application) -> None:
                     f"{child.name}, nar. {child.birth_date.strftime(DATE_FORMAT)}"
                 ).classes("text-sm")
         ui.label(
-            f"Potvrzení a PDF s přihláškou zašleme na {application.guardian.email}."
-            "Nebo si jej můžete stáhnout stisknutím tlačítka níže."
+            f"Potvrzení a PDF s přihláškou zašleme na {application.guardian.email}. "
+            "Nebo si jej můžete stáhnout kliknutím na tlačítko níže."
         ).classes("text-sm text-stone-600")
         ui.button("Stáhnout PDF", on_click=lambda: ui.download(pdf, filename)).props(
             "unelevated no-caps"

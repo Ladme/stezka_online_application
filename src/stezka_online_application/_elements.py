@@ -6,12 +6,14 @@ from nicegui import binding, ui
 from stezka_online_application._cfg import DATE_MASK
 from stezka_online_application._models import (
     BIRTH_DATE_ADAPTER,
+    Address,
     Child,
     Contact,
     is_email,
     is_filled,
     is_full_name,
     is_phone,
+    is_postal_code,
     is_valid_date,
     optional,
 )
@@ -34,6 +36,10 @@ REQUIRED_PHONE: Validation = {
 REQUIRED_EMAIL: Validation = {
     "Vyplňte prosím toto pole.": is_filled,
     "Zadejte e-mail ve formátu jmeno@domena.com.": is_email,
+}
+REQUIRED_POSTAL: Validation = {
+    "Vyplňte prosím toto pole.": is_filled,
+    "Zadejte PSČ ve formátu XYZ AB, např. 602 00.": is_postal_code,
 }
 
 OPTIONAL_PHONE: Validation = {
@@ -216,11 +222,20 @@ class ChildBlock:
             self._birth_date = birth_date
 
             field_label("Bydliště")
-            self._address = (
-                ui.input(placeholder="Ulice a číslo, město, PSČ", validation=REQUIRED)
-                .classes("w-full")
-                .props("dense hide-bottom-space")
-            )
+            with ui.element("div").classes(
+                "w-full grid grid-cols-1 sm:grid-cols-2 gap-2"
+            ):
+                self._street = (
+                    ui.input("Ulice a číslo", validation=REQUIRED)
+                    .props("hide-bottom-space")
+                    .classes("sm:col-span-2")
+                )
+                self._city = ui.input("Město", validation=REQUIRED).props(
+                    "hide-bottom-space"
+                )
+                self._postal_code = ui.input("PSČ", validation=REQUIRED_POSTAL).props(
+                    "hide-bottom-space"
+                )
 
             field_label("Kontakt na dítě (nepovinné)", required=False)
             self._contact = (
@@ -264,7 +279,9 @@ class ChildBlock:
         results = [
             self._name.validate(),
             self._birth_date.validate(),
-            self._address.validate(),
+            self._street.validate(),
+            self._city.validate(),
+            self._postal_code.validate(),
             self._fit.validate(),
             self._photo_consent.validate(),
         ]
@@ -275,7 +292,11 @@ class ChildBlock:
         return Child(
             name=self._name.value,
             birth_date=BIRTH_DATE_ADAPTER.validate_python(self._birth_date.value),
-            address=self._address.value,
+            address=Address(
+                street=self._street.value,
+                city=self._city.value,
+                postal_code=self._postal_code.value,
+            ),
             fit_for_activities=bool(self._fit.value),
             health_details=self._health.value,
             other_warnings=self._warnings.value,

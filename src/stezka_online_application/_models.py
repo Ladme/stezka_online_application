@@ -32,6 +32,10 @@ def is_phone(value: object, /) -> bool:
     return re.fullmatch(r"\+?\d{9,15}", digits) is not None
 
 
+def is_postal_code(value: object, /) -> bool:
+    return re.fullmatch(r"\d{3} ?\d{2}", str(value or "").strip()) is not None
+
+
 def require(predicate: Callable[[str], bool], expectation: str) -> AfterValidator:
     """Turn a predicate into a pydantic field validator."""
 
@@ -65,7 +69,7 @@ def czech_date_to_iso(value: object) -> object:
 Text = Annotated[str, Field(min_length=1)]
 FullName = Annotated[Text, require(is_full_name, "a first name and a surname")]
 Phone = Annotated[Text, require(is_phone, "a phone number of 9 to 15 digits")]
-
+PostalCode = Annotated[Text, require(is_postal_code, "a postal code such as 602 00")]
 BirthDate = Annotated[PastDate, BeforeValidator(czech_date_to_iso)]
 
 BIRTH_DATE_ADAPTER = TypeAdapter(BirthDate)
@@ -119,12 +123,24 @@ class Contact:
 
 
 @dataclass(frozen=True, slots=True, config=MODEL_CONFIG)
+class Address:
+    """Residence of a child."""
+
+    street: Text
+    city: Text
+    postal_code: PostalCode
+
+    def __str__(self) -> str:
+        return f"{self.street}, {self.city}, {self.postal_code}"
+
+
+@dataclass(frozen=True, slots=True, config=MODEL_CONFIG)
 class Child:
     """Immutable record of a child being registered."""
 
     name: FullName
     birth_date: BirthDate
-    address: Text
+    address: Address
     fit_for_activities: bool
     health_details: str
     other_warnings: str
