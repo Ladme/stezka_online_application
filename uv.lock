@@ -977,6 +977,7 @@ source = { editable = "." }
 dependencies = [
     { name = "nicegui" },
     { name = "pydantic", extra = ["email"] },
+    { name = "python-dotenv" },
     { name = "typst" },
 ]
 
@@ -991,6 +992,7 @@ dev = [
 requires-dist = [
     { name = "nicegui", specifier = ">=3.16.0" },
     { name = "pydantic", extras = ["email"], specifier = ">=2.13.5" },
+    { name = "python-dotenv", specifier = ">=1.2.3" },
     { name = "typst", specifier = ">=0.15.0" },
 ]
 

@@ -46,7 +46,7 @@ OPTIONAL_PHONE: Validation = {
     "Zadejte telefonní číslo, např. +420 601 123 456.": optional(is_phone),
 }
 OPTIONAL_EMAIL: Validation = {
-    "Zadejte e-mail ve formátu jmeno@example.cz.": optional(is_email),
+    "Zadejte e-mail ve formátu jmeno@domena.cz.": optional(is_email),
 }
 
 

@@ -1,15 +1,17 @@
 from pathlib import Path
 
-from nicegui import app, ui
+from dotenv import load_dotenv
+from nicegui import app, run, ui
 from pydantic import ValidationError
 
 from stezka_online_application._cfg import (
     APP_TITLE,
+    CHIEF_EMAIL,
+    DATE_FORMAT,
     INTRO_MANY,
     INTRO_ONE,
     LEGAL,
 )
-from stezka_online_application._common import handle_submission
 from stezka_online_application._elements import (
     REQUIRED,
     REQUIRED_EMAIL,
@@ -23,16 +25,108 @@ from stezka_online_application._elements import (
     one_or_many,
     section,
 )
+from stezka_online_application._email import send_application
 from stezka_online_application._models import (
     Application,
     Child,
     Contact,
     Guardian,
 )
+from stezka_online_application._pdf import build_pdf
 
 
 @ui.page("/")
 def registration_page() -> None:
+
+    def form_is_valid() -> bool:
+        """Run every field's own validation and mark what needs fixing."""
+        rules_error.set_visibility(not rules_accepted.value)
+        checks = [
+            children.validate(),
+            guardian_name.validate(),
+            guardian_relation.validate(),
+            guardian_phone.validate(),
+            guardian_email.validate(),
+            contacts.validate(),
+            rules_accepted.value,
+        ]
+        return all(checks)
+
+    def collect() -> Application:
+        """Freeze the answers into the model; raises ValidationError."""
+        return Application(
+            children=children.values,
+            guardian=Guardian(
+                person=guardian_name.value,
+                relation_to_child=guardian_relation.value,
+                phone=guardian_phone.value,
+                email=guardian_email.value,
+            ),
+            contacts=contacts.values,
+        )
+
+    def show_confirmation(application: Application, pdf: bytes) -> None:
+        """Fill the pre-built dialog with the result and open it."""
+        confirmation.clear()
+        with confirmation:
+            ui.label("Přihláška odeslána").classes("text-lg text-stone-900")
+            with ui.column().classes("gap-1"):
+                for child in application.children:
+                    ui.label(
+                        f"{child.name}, nar. {child.birth_date.strftime(DATE_FORMAT)}"
+                    ).classes("text-sm")
+            ui.label(
+                f"Potvrzení a PDF s přihláškou jsme poslali na "
+                f"{application.guardian.email}.\nMůžete si ji taky "
+                "stáhnout kliknutím na tlačítko 'Stáhnout PDF'."
+            ).classes("text-sm text-stone-600")
+            ui.button(
+                "Stáhnout PDF",
+                on_click=lambda: ui.download(pdf, "prihlaska.pdf"),
+            ).props("unelevated no-caps")
+            ui.button("Zavřít", on_click=dialog.close).props("flat no-caps").classes(
+                "self-end"
+            )
+        dialog.open()
+
+    async def submit() -> None:
+        """Validate, build the PDF, send both e-mails, confirm."""
+        if not form_is_valid():
+            ui.notify(
+                "Některá pole potřebují opravu, jsou vyznačena červeně.",
+                type="negative",
+            )
+            return
+
+        try:
+            application = collect()
+        except ValidationError:
+            ui.notify(
+                "Přihlášku se nepodařilo zpracovat, zkuste to prosím znovu.",
+                type="negative",
+            )
+            return
+
+        submit_button.disable()
+        progress.set_visibility(True)
+        try:
+            pdf = await run.io_bound(build_pdf, application)
+            assert pdf is not None
+            await run.io_bound(send_application, application, pdf)
+        except Exception:  # noqa: BLE001
+            ui.notify(
+                "Přihlášku se nepodařilo odeslat. Zkuste to prosím znovu, "
+                f"nebo nám napište na {CHIEF_EMAIL}.",
+                type="negative",
+                multi_line=True,
+            )
+            return
+        finally:
+            progress.set_visibility(False)
+            submit_button.enable()
+
+        show_confirmation(application, pdf)
+
     ui.page_title(APP_TITLE)
     ui.colors(primary="#2f6b3f")
     ui.add_head_html(
@@ -153,52 +247,24 @@ def registration_page() -> None:
             lambda: rules_error.set_visibility(not rules_accepted.value)
         )
 
-        def submit() -> None:
-            """Validate everything and save the answers into a dataclass."""
-            rules_error.set_visibility(not rules_accepted.value)
-            checks = [
-                children.validate(),
-                guardian_name.validate(),
-                guardian_relation.validate(),
-                guardian_phone.validate(),
-                guardian_email.validate(),
-                contacts.validate(),
-                rules_accepted.value,
-            ]
-            if not all(checks):
-                ui.notify(
-                    "Některá pole potřebují opravu, jsou vyznačena červeně.",
-                    type="negative",
-                )
-                return
+        with ui.row().classes("items-center gap-3"):
+            submit_button = (
+                ui.button("Odeslat přihlášku", on_click=submit)
+                .props("unelevated no-caps")
+                .classes("px-6")
+            )
+            with ui.row().classes("items-center gap-2") as progress:
+                ui.spinner(size="1.5rem")
+                ui.label("Odesíláme přihlášku...").classes("text-sm text-stone-600")
+            progress.set_visibility(False)
 
-            try:
-                application = Application(
-                    children=children.values,
-                    guardian=Guardian(
-                        person=guardian_name.value,
-                        relation_to_child=guardian_relation.value,
-                        phone=guardian_phone.value,
-                        email=guardian_email.value,
-                    ),
-                    contacts=contacts.values,
-                )
-            except ValidationError as error:
-                print(error)
-                ui.notify(
-                    "Přihlášku se nepodařilo zpracovat, zkuste to prosím znovu.",
-                    type="negative",
-                )
-                return
-
-            handle_submission(application)
-
-        ui.button("Odeslat přihlášku", on_click=submit).props(
-            "unelevated no-caps"
-        ).classes("self-start px-6")
+        with ui.dialog() as dialog, ui.card().classes("gap-3 p-6"):
+            confirmation = ui.column().classes("gap-3")
 
 
 def main() -> None:
+    load_dotenv()
+
     STATIC = Path(__file__).parent / "static"
     app.add_static_files("/static", STATIC)
 

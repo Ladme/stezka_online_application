@@ -166,3 +166,38 @@ TYPST_TEMPLATE = r"""
   #application-page(child, data.guardian, data.contacts, data.rules, data.date)
 ]
 """
+
+SMTP_HOST = "smtp.gmail.com"
+SMTP_PORT = 587
+SENDER = "klada@stezka.org"
+CHIEF_EMAIL = "ladme@seznam.cz"
+
+
+GUARDIAN_EMAIL_BODY = """\
+Dobrý den,
+
+děkujeme za přihlášku do oddílu 48. PTO Stezka. Shrnutí:
+
+{summary}
+
+V příloze najdete PDF s přihláškou. Protože na ní potřebujeme váš podpis,
+prosíme vás, abyste ji buď podepsal(a) elektronicky a poslal(a) na
+{chief_email}, nebo ji vytiskl(a), podepsal(a) a přinesl(a) na nejbližší
+schůzku.{signature_note}
+
+S pozdravem
+
+48. PTO Stezka
+"""
+
+MULTIPLE_CHILDREN_EMAIL_NOTE = (
+    " Každé dítě má svou vlastní stránku a svůj vlastní podpis."
+)
+
+CHIEF_EMAIL_BODY = """\
+Nová přihláška od {guardian} ({email}, {phone}).
+
+{summary}
+
+Data jsou v příloze ve formátu YAML a CSV, nepodepsaná přihláška v PDF.
+"""
