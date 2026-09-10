@@ -284,7 +284,13 @@ def main() -> None:
     STATIC = Path(__file__).parent / "static"
     app.add_static_files("/static", STATIC)
 
-    ui.run(title=CFG.app.title, reload=False, favicon=STATIC / "favicon.png")
+    ui.run(
+        title=CFG.app.title,
+        host="0.0.0.0",
+        port=9967,
+        reload=False,
+        favicon=STATIC / "favicon.png",
+    )
 
 
 if __name__ in {"__main__", "__mp_main__"}:
