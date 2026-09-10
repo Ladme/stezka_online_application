@@ -12,6 +12,7 @@ from stezka_online_application._models import (
     is_email,
     is_filled,
     is_full_name,
+    is_past_date,
     is_phone,
     is_postal_code,
     is_valid_date,
@@ -27,7 +28,8 @@ REQUIRED_NAME: Validation = {
 }
 REQUIRED_DATE: Validation = {
     "Vyplňte prosím toto pole.": is_filled,
-    "Zadejte datum ve formátu dd.mm.rrrr.": is_valid_date,
+    "Zadejte platné datum ve formátu dd.mm.rrrr.": is_valid_date,
+    "Datum narození musí být v minulosti.": is_past_date,
 }
 REQUIRED_PHONE: Validation = {
     "Vyplňte prosím toto pole.": is_filled,

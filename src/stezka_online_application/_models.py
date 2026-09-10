@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Callable
+from datetime import date
 from typing import Annotated, Any
 
 from pydantic import (
@@ -72,7 +73,9 @@ Phone = Annotated[Text, require(is_phone, "a phone number of 9 to 15 digits")]
 PostalCode = Annotated[Text, require(is_postal_code, "a postal code such as 602 00")]
 BirthDate = Annotated[PastDate, BeforeValidator(czech_date_to_iso)]
 
+DATE_ADAPTER = TypeAdapter(Annotated[date, BeforeValidator(czech_date_to_iso)])
 BIRTH_DATE_ADAPTER = TypeAdapter(BirthDate)
+
 EMAIL_ADAPTER = TypeAdapter(EmailStr)
 
 
@@ -86,7 +89,12 @@ def accepts(adapter: TypeAdapter[Any], value: object) -> bool:
 
 
 def is_valid_date(value: object, /) -> bool:
-    return accepts(BIRTH_DATE_ADAPTER, value)
+    return accepts(DATE_ADAPTER, value)
+
+
+def is_past_date(value: object, /) -> bool:
+    """Whether the date is in the past."""
+    return not is_valid_date(value) or accepts(BIRTH_DATE_ADAPTER, value)
 
 
 def is_email(value: object, /) -> bool:
