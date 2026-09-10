@@ -288,6 +288,7 @@ def main() -> None:
         title=CFG.app.title,
         host="0.0.0.0",
         port=9967,
+        show=False,
         reload=False,
         favicon=STATIC / "favicon.png",
     )
