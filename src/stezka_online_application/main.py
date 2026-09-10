@@ -234,7 +234,7 @@ def registration_page() -> None:
             guardian_email = (
                 ui.input(validation=REQUIRED_EMAIL)
                 .classes("w-full")
-                .props("dense hide-bottom-space inputmode=tel")
+                .props("dense hide-bottom-space inputmode=email")
             )
 
         with (
