@@ -1,3 +1,4 @@
+import base64
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -8,9 +9,11 @@ from stezka_online_application._cfg import (
     APP_TITLE,
     CHIEF_EMAIL,
     DATE_FORMAT,
-    INTRO_MANY,
-    INTRO_ONE,
+    INTRO_MANY_CHILDREN,
+    INTRO_ONE_CHILD,
     LEGAL,
+    MEMBERSHIP_FEE,
+    SCHOOL_YEAR,
 )
 from stezka_online_application._elements import (
     REQUIRED,
@@ -33,6 +36,7 @@ from stezka_online_application._models import (
     Guardian,
 )
 from stezka_online_application._pdf import build_pdf
+from stezka_online_application._qr import payment_amount, payment_qr_code
 
 
 @ui.page("/")
@@ -65,30 +69,6 @@ def registration_page() -> None:
             contacts=contacts.values,
         )
 
-    def show_confirmation(application: Application, pdf: bytes) -> None:
-        """Fill the pre-built dialog with the result and open it."""
-        confirmation.clear()
-        with confirmation:
-            ui.label("Přihláška odeslána").classes("text-lg text-stone-900")
-            with ui.column().classes("gap-1"):
-                for child in application.children:
-                    ui.label(
-                        f"{child.name}, nar. {child.birth_date.strftime(DATE_FORMAT)}"
-                    ).classes("text-sm")
-            ui.label(
-                f"Potvrzení a PDF s přihláškou jsme poslali na "
-                f"{application.guardian.email}.\nMůžete si ji taky "
-                "stáhnout kliknutím na tlačítko 'Stáhnout PDF'."
-            ).classes("text-sm text-stone-600")
-            ui.button(
-                "Stáhnout PDF",
-                on_click=lambda: ui.download(pdf, "prihlaska.pdf"),
-            ).props("unelevated no-caps")
-            ui.button("Zavřít", on_click=dialog.close).props("flat no-caps").classes(
-                "self-end"
-            )
-        dialog.open()
-
     async def submit() -> None:
         """Validate, build the PDF, send both e-mails, confirm."""
         if not form_is_valid():
@@ -112,10 +92,12 @@ def registration_page() -> None:
         try:
             pdf = await run.io_bound(build_pdf, application)
             assert pdf is not None
-            await run.io_bound(send_application, application, pdf)
-        except Exception:  # noqa: BLE001
+            qr_code = payment_qr_code(application)
+            await run.io_bound(send_application, application, pdf, qr_code)
+        except Exception as e:  # noqa: BLE001
+            print(e)
             ui.notify(
-                "Přihlášku se nepodařilo odeslat. Zkuste to prosím znovu, "
+                "Přihlášku se nepodařilo odeslat. Zkuste to prosím znovu "
                 f"nebo nám napište na {CHIEF_EMAIL}.",
                 type="negative",
                 multi_line=True,
@@ -125,7 +107,45 @@ def registration_page() -> None:
             progress.set_visibility(False)
             submit_button.enable()
 
-        show_confirmation(application, pdf)
+        show_confirmation(application, pdf, qr_code)
+
+    def show_confirmation(application: Application, pdf: bytes, qr_code: bytes) -> None:
+        """Fill the pre-built dialog with the result and open it."""
+        confirmation.clear()
+        with confirmation:
+            ui.label("Přihláška odeslána").classes("text-lg text-stone-900")
+            with ui.column().classes("gap-1"):
+                for child in application.children:
+                    ui.label(
+                        f"{child.name}, nar. {child.birth_date.strftime(DATE_FORMAT)}"
+                    ).classes("text-sm")
+
+            ui.label(
+                f"Potvrzení a PDF s přihláškou jsme poslali na "
+                f"{application.guardian.email}.\nMůžete si ji taky "
+                "stáhnout kliknutím na tlačítko 'Stáhnout přihlášku'."
+            ).classes("text-sm text-stone-600")
+
+            ui.button(
+                "Stáhnout přihlášku",
+                on_click=lambda: ui.download(pdf, "prihlaska.pdf"),
+            ).props("unelevated no-caps")
+
+            ui.separator()
+            ui.label(f"Členský příspěvek: {payment_amount(application)} Kč").classes(
+                "text-sm text-stone-900"
+            )
+            ui.image(
+                "data:image/png;base64," + base64.b64encode(qr_code).decode()
+            ).classes("w-48 self-center")
+            ui.label("QR kód pro platbu najdete i v e-mailu.").classes(
+                "text-xs text-stone-600 self-center"
+            )
+
+            ui.button("Zavřít", on_click=dialog.close).props("flat no-caps").classes(
+                "self-end"
+            )
+        dialog.open()
 
     ui.page_title(APP_TITLE)
     ui.colors(primary="#2f6b3f")
@@ -149,7 +169,14 @@ def registration_page() -> None:
                 )
 
             ui.html().bind_content_from(
-                children_count, "count", one_or_many(INTRO_ONE, INTRO_MANY)
+                children_count,
+                "count",
+                one_or_many(
+                    INTRO_ONE_CHILD.format(fee=MEMBERSHIP_FEE, chief_email=CHIEF_EMAIL),
+                    INTRO_MANY_CHILDREN.format(
+                        fee=MEMBERSHIP_FEE, chief_email=CHIEF_EMAIL
+                    ),
+                ),
             ).classes(
                 "w-full text-sm text-stone-700 leading-relaxed text-justify hyphens-auto"
             ).props("lang=cs")
@@ -158,7 +185,9 @@ def registration_page() -> None:
             ui.card().classes("w-full p-6 shadow-none border border-stone-300"),
             section("Právní podmínky"),
         ):
-            ui.markdown(LEGAL).classes(
+            ui.markdown(
+                LEGAL.format(fee=MEMBERSHIP_FEE, school_year=SCHOOL_YEAR)
+            ).classes(
                 "w-full pr-4 text-sm text-stone-700 leading-relaxed text-justify hyphens-auto"
             ).props("lang=cs")
 

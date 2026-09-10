@@ -230,7 +230,7 @@ class ChildBlock:
                     .props("hide-bottom-space")
                     .classes("sm:col-span-2")
                 )
-                self._city = ui.input("Město", validation=REQUIRED).props(
+                self._city = ui.input("Obec", validation=REQUIRED).props(
                     "hide-bottom-space"
                 )
                 self._postal_code = ui.input("PSČ", validation=REQUIRED_POSTAL).props(

@@ -27,14 +27,14 @@ LEGAL = """
 
 ##### IV. Členský poplatek na školní rok 2026/2027
 
-9. Poplatek byl stanoven na 1300 Kč pro aktivní oddílové dětské členy. Část je poskytnuta Jihomoravské krajské organizaci Pionýra a sdružení Pionýr, část bude sloužit na provoz oddílu. Poplatek je vybírán společně s odevzdáním přihlášky do oddílu. Členové se zaplaceným poplatkem budou mít levnější oddílové akce, zejména tábor.
+9. Poplatek pro školní rok {school_year} je {fee} Kč pro dětské členy. Část je poskytnuta Jihomoravské krajské organizaci Pionýra a sdružení Pionýr, část bude sloužit na provoz oddílu. Poplatek je vybírán společně s odevzdáním přihlášky do oddílu. Členové oddílu se zaplaceným poplatkem mají levnější oddílové akce, zejména tábor.
 
 #####  V. GDPR a dotační programy
 
 10. Odevzdáním přihlášky berete na vědomí, že osobní údaje dítěte (jméno, datum narození a údaje o účasti v aktivitách oddílu) budou v nezbytném rozsahu předávány Ministerstvu školství, mládeže a tělovýchovy a poskytovateli dotace OP JAK za účelem čerpání dotačních prostředků. Podrobné informace o zpracování osobních údajů jsou uvedeny v informačním sdělení na [stezka.org/msmt-gdpr](https://stezka.org/msmt-gdpr).
 """
 
-INTRO_ONE = """
+INTRO_ONE_CHILD = """
 <p class="mb-3">Děkujeme za zájem o přihlášení vašeho dítěte do oddílu.
 Vyplněním naší online přihlášky nám ušetříte spoustu přepisování.</p>
 
@@ -43,27 +43,37 @@ formulář. Povinná pole jsou označena <strong>hvězdičkou</strong>.</p>
 
 <p class="mb-3">Po odeslání vám na e-mail zašleme potvrzení a PDF s vyplněnou přihláškou.
 Papírování se ale úplně vyhnout nedá – <strong>potřebujeme váš podpis</strong>.
-PDF si proto stáhněte a buď přihlášku podepište elektronicky a pošlete na
-<a href="mailto:zuby@stezka.org" class="text-green-800 underline">zuby@stezka.org</a>,
-nebo ji vytiskněte, podepište fyzicky a <strong>přineste na blízkou schůzku</strong>.</p>
+Přihlášku si proto stáhněte a buď ji podepište elektronicky a pošlete na
+<a href="mailto:{chief_email}" class="text-green-800 underline">{chief_email}</a>,
+nebo ji vytiskněte, podepište a <strong>přineste na nejbližší schůzku</strong>.</p>
 
-<p class="mb-3">Nebojte, ještě vám to všechno připomeneme v e-mailu :)</p>
+<p class="mb-3">Druhá věc je členský poplatek, který činí
+<strong>{fee} Kč</strong> na školní rok. Po odeslání přihlášky vám
+rovnou ukážeme QR kód pro platbu a pošleme ho i v e-mailu.</p>
+
+<p class="mb-3">Pokud vám z toho teď jde hlava kolem, nebojte se –
+všechno vám ještě jednou napíšeme v e-mailu :)</p>
 """
 
-INTRO_MANY = """
+INTRO_MANY_CHILDREN = """
 <p class="mb-3">Děkujeme za zájem o přihlášení vašich dětí do oddílu.
 Vyplněním naší online přihlášky nám ušetříte spoustu přepisování.</p>
 
 <p class="mb-3">Přečtěte si prosím pozorně informace níže a poté vyplňte
 formulář. Povinná pole jsou označena <strong>hvězdičkou</strong>.</p>
 
-<p class="mb-3">Po odeslání vám na e-mail zašleme potvrzení a PDF s vyplněnou přihláškou.
+<p class="mb-3">Po odeslání vám na e-mail zašleme potvrzení a PDF s vyplněnými přihláškami.
 Papírování se ale úplně vyhnout nedá – <strong>potřebujeme váš podpis</strong>.
-PDF si proto stáhněte a buď přihlášku podepište elektronicky a pošlete na
-<a href="mailto:zuby@stezka.org" class="text-green-800 underline">zuby@stezka.org</a>,
-nebo ji vytiskněte, podepište fyzicky a <strong>přineste na blízkou schůzku</strong>.</p>
+Přihlášky si proto stáhněte a buď je podepište elektronicky a pošlete na
+<a href="mailto:{chief_email}" class="text-green-800 underline">{chief_email}</a>,
+nebo je vytiskněte, podepište a <strong>přineste na nejbližší schůzku</strong>.</p>
 
-<p class="mb-3">Nebojte, ještě vám to všechno připomeneme v e-mailu :)</p>
+<p class="mb-3">Druhá věc je členský poplatek, který činí
+<strong>{fee} Kč</strong> na školní rok za každé dítě. Po odeslání
+přihlášky vám rovnou ukážeme QR kód pro platbu a pošleme ho i v e-mailu.</p>
+
+<p class="mb-3">Pokud vám z toho teď jde hlava kolem, nebojte se –
+všechno vám ještě jednou napíšeme v e-mailu :)</p>
 """
 
 RULES_ON_PRINTED_APPLICATION = (
@@ -173,26 +183,66 @@ SENDER = "klada@stezka.org"
 CHIEF_EMAIL = "ladme@seznam.cz"
 
 
-GUARDIAN_EMAIL_BODY = """\
+ONE_CHILD_EMAIL_BODY = """\
 Dobrý den,
 
-děkujeme za přihlášku do oddílu 48. PTO Stezka. Shrnutí:
+děkujeme za přihlášku do oddílu 48. PTO Stezka.
+
+Přihlášené dítě:
 
 {summary}
 
-V příloze najdete PDF s přihláškou. Protože na ní potřebujeme váš podpis,
-prosíme vás, abyste ji buď podepsal(a) elektronicky a poslal(a) na
-{chief_email}, nebo ji vytiskl(a), podepsal(a) a přinesl(a) na nejbližší
-schůzku.{signature_note}
+Zbývají dvě věci.
+
+1) Podepsat přihlášku
+
+V příloze najdete PDF s vyplněnou přihláškou. Podepsat ji můžete
+elektronicky a poslat na {chief_email}, nebo ji vytisknout,
+podepsat a přinést na nejbližší schůzku.
+
+2) Zaplatit členský příspěvek
+
+Příspěvek je {amount} Kč. Zaplatíte naskenováním QR kódu v příloze,
+nebo převodem na účet {account} se zprávou pro příjemce
+"{payment_note}".
+
+Kdyby cokoli nebylo jasné nebo jste objevili chybu či nesrovnalost,
+napište nám na {chief_email}.
 
 S pozdravem
-
 48. PTO Stezka
 """
 
-MULTIPLE_CHILDREN_EMAIL_NOTE = (
-    " Každé dítě má svou vlastní stránku a svůj vlastní podpis."
-)
+MULTIPLE_CHILDREN_EMAIL_BODY = """\
+Dobrý den,
+
+děkujeme za přihlášku do oddílu 48. PTO Stezka.
+
+Přihlášené děti:
+
+{summary}
+
+Zbývají dvě věci.
+
+1) Podepsat přihlášky
+
+V příloze najdete PDF s vyplněnými přihláškami. Každé dítě má svou
+vlastní stránku a potřebuje svůj vlastní podpis. Podepsat je můžete
+elektronicky a poslat na {chief_email}, nebo je vytisknout, podepsat
+a přinést na nejbližší schůzku.
+
+2) Zaplatit členský příspěvek
+
+Příspěvek je {fee} Kč za každé dítě, celkem tedy {amount} Kč.
+Zaplatíte naskenováním QR kódu v příloze, nebo převodem na účet
+{account} se zprávou pro příjemce "{payment_note}".
+
+Kdyby cokoli nebylo jasné nebo jste objevili chybu či nesrovnalost,
+napište nám na {chief_email}.
+
+S pozdravem
+48. PTO Stezka
+"""
 
 CHIEF_EMAIL_BODY = """\
 Nová přihláška od {guardian} ({email}, {phone}).
@@ -201,3 +251,14 @@ Nová přihláška od {guardian} ({email}, {phone}).
 
 Data jsou v příloze ve formátu YAML a CSV, nepodepsaná přihláška v PDF.
 """
+
+BANK_ACCOUNT = "2802041575/2010"
+
+RECIPIENT_NAME = "PS Expedice"
+
+MEMBERSHIP_FEE = 1300
+
+# the limit for the MSG field of the SPAYD format
+MESSAGE_LIMIT = 60
+
+SCHOOL_YEAR = "2026/2027"

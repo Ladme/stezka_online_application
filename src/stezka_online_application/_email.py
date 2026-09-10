@@ -3,16 +3,19 @@ import smtplib
 from email.message import EmailMessage
 
 from stezka_online_application._cfg import (
+    BANK_ACCOUNT,
     CHIEF_EMAIL,
     CHIEF_EMAIL_BODY,
-    GUARDIAN_EMAIL_BODY,
-    MULTIPLE_CHILDREN_EMAIL_NOTE,
+    MEMBERSHIP_FEE,
+    MULTIPLE_CHILDREN_EMAIL_BODY,
+    ONE_CHILD_EMAIL_BODY,
     SENDER,
     SMTP_HOST,
     SMTP_PORT,
 )
 from stezka_online_application._export import to_csv, to_yaml
 from stezka_online_application._models import Application
+from stezka_online_application._qr import payment_amount, payment_message
 
 
 def _password() -> str:
@@ -32,23 +35,38 @@ def _summary(application: Application) -> str:
     )
 
 
-def _guardian_message(application: Application, pdf: bytes) -> EmailMessage:
+def _guardian_email_body(application: Application) -> str:
+    template = (
+        ONE_CHILD_EMAIL_BODY
+        if len(application.children) == 1
+        else MULTIPLE_CHILDREN_EMAIL_BODY
+    )
+    return template.format(
+        summary=_summary(application),
+        chief_email=CHIEF_EMAIL,
+        amount=payment_amount(application),
+        fee=MEMBERSHIP_FEE,
+        account=BANK_ACCOUNT,
+        payment_note=payment_message(application),
+    )
+
+
+def _guardian_message(
+    application: Application, pdf: bytes, qr_code: bytes
+) -> EmailMessage:
     message = EmailMessage()
     message["Subject"] = "Přihláška do oddílu 48. PTO Stezka"
     message["From"] = SENDER
     message["To"] = application.guardian.email
 
-    note = MULTIPLE_CHILDREN_EMAIL_NOTE if len(application.children) > 1 else ""
-    message.set_content(
-        GUARDIAN_EMAIL_BODY.format(
-            summary=_summary(application),
-            chief_email=CHIEF_EMAIL,
-            signature_note=note,
-        )
-    )
+    message.set_content(_guardian_email_body(application))
 
     message.add_attachment(
         pdf, maintype="application", subtype="pdf", filename="prihlaska.pdf"
+    )
+
+    message.add_attachment(
+        qr_code, maintype="image", subtype="png", filename="platba.png"
     )
 
     return message
@@ -90,9 +108,12 @@ def _chief_message(application: Application, pdf: bytes) -> EmailMessage:
     return message
 
 
-def send_application(application: Application, pdf: bytes) -> None:
+def send_application(application: Application, pdf: bytes, qr_code: bytes) -> None:
     """Send both e-mails over one SMTP connection. Blocking."""
-    messages = [_guardian_message(application, pdf), _chief_message(application, pdf)]
+    messages = [
+        _guardian_message(application, pdf, qr_code),
+        _chief_message(application, pdf),
+    ]
     with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=30) as smtp:
         smtp.starttls()
         smtp.login(SENDER, _password())
