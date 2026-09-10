@@ -384,7 +384,7 @@ class ChildBlock:
 
 
 class RepeatableSection[T_co]:
-    """A list of blocks that the user can extend. One block always remains."""
+    """A list of blocks that the user can extend."""
 
     def __init__(
         self,
