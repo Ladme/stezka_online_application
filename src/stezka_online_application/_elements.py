@@ -95,7 +95,8 @@ class YesNoField:
             self._yes = ui.checkbox("ano", on_change=lambda: self._sync(self._yes))
             self._no = ui.checkbox("ne", on_change=lambda: self._sync(self._no))
 
-        self._error = ui.label().classes("text-xs text-red-700 hidden")
+        self._error = ui.label().classes("text-xs text-red-700")
+        self._error.set_visibility(False)
 
     def _sync(self, changed: ui.checkbox) -> None:
         """Unchecking is free, checking one box clears the other one."""
@@ -107,7 +108,7 @@ class YesNoField:
         if changed.value:
             other = self._no if changed is self._yes else self._yes
             other.value = False
-            self._error.text = ""
+            self._error.set_visibility(False)
 
         self._syncing = False
 
@@ -123,6 +124,7 @@ class YesNoField:
     def validate(self) -> bool:
         answered = self.value is not None
         self._error.text = "" if answered else "Zvolte prosím ano, nebo ne."
+        self._error.set_visibility(not answered)
         return answered
 
 
