@@ -2,6 +2,7 @@ import io
 import unicodedata
 from datetime import date
 
+from PIL import Image
 from qrplatba import QRPlatbaGenerator
 
 from stezka_online_application._cfg import (
@@ -41,10 +42,18 @@ def payment_qr_code(application: Application) -> bytes:
         recipient_name=RECIPIENT_NAME,
         message=payment_message(application),
     )
-    buffer = io.BytesIO()
-    generator.make_image(box_size=20, border=4).save(
-        buffer, output_format="png", zoom=2
+    # generate the QR code and paste it onto a white background
+    rendered = io.BytesIO()
+    generator.make_image(box_size=10, border=4).save(
+        rendered, output_format="png", zoom=1
     )
+    rendered.seek(0)
+    with Image.open(rendered) as code:
+        canvas = Image.new("RGB", code.size, "white")
+        canvas.paste(code, mask=code.getchannel("A"))
+
+    buffer = io.BytesIO()
+    canvas.save(buffer, format="PNG")
     return buffer.getvalue()
 
 
