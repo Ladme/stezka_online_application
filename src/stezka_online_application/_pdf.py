@@ -72,6 +72,7 @@ def build_pdf(application: Application) -> bytes:
         ],
         "rules": CFG.printed_rules,
         "date": czech_date(date.today()),  # noqa: DTZ011
+        "logo": CFG.pdf.logo,
     }
     return typst.compile(
         CFG.pdf.template.encode(),

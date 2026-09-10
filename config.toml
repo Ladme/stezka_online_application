@@ -268,3 +268,4 @@ template = '''
   #if index > 0 { pagebreak() }
   #application-page(child, data.guardian, data.contacts, data.rules, data.date, data.logo)
 ]
+'''
