@@ -3,10 +3,7 @@ from datetime import date
 
 import typst
 
-from stezka_online_application._cfg import (
-    RULES_ON_PRINTED_APPLICATION,
-    TYPST_TEMPLATE,
-)
+from stezka_online_application._cfg import CFG
 from stezka_online_application._models import (
     Address,
     Application,
@@ -73,11 +70,11 @@ def build_pdf(application: Application) -> bytes:
             }
             for contact in application.contacts
         ],
-        "rules": RULES_ON_PRINTED_APPLICATION,
+        "rules": CFG.printed_rules,
         "date": czech_date(date.today()),  # noqa: DTZ011
     }
     return typst.compile(
-        TYPST_TEMPLATE.encode(),
+        CFG.pdf.template.encode(),
         sys_inputs={"data": json.dumps(data, ensure_ascii=False)},
     )
 

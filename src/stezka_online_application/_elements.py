@@ -3,7 +3,7 @@ from typing import Any, Protocol, TypeVar
 
 from nicegui import binding, ui
 
-from stezka_online_application._cfg import DATE_MASK
+from stezka_online_application._cfg import CFG
 from stezka_online_application._models import (
     BIRTH_DATE_ADAPTER,
     Address,
@@ -210,7 +210,7 @@ class ChildBlock:
             ):
                 with (
                     ui.menu().props("no-parent-event") as date_menu,
-                    ui.date(mask=DATE_MASK).bind_value(birth_date),
+                    ui.date(mask=CFG.app.date_mask).bind_value(birth_date),
                 ):
                     ui.button("Zavřít", on_click=date_menu.close).props(
                         "flat no-caps"

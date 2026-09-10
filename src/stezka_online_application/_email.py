@@ -2,17 +2,7 @@ import os
 import smtplib
 from email.message import EmailMessage
 
-from stezka_online_application._cfg import (
-    BANK_ACCOUNT,
-    CHIEF_EMAIL,
-    CHIEF_EMAIL_BODY,
-    MEMBERSHIP_FEE,
-    MULTIPLE_CHILDREN_EMAIL_BODY,
-    ONE_CHILD_EMAIL_BODY,
-    SENDER,
-    SMTP_HOST,
-    SMTP_PORT,
-)
+from stezka_online_application._cfg import CFG
 from stezka_online_application._export import to_csv, to_yaml
 from stezka_online_application._models import Application
 from stezka_online_application._qr import payment_amount, payment_message
@@ -37,16 +27,16 @@ def _summary(application: Application) -> str:
 
 def _guardian_email_body(application: Application) -> str:
     template = (
-        ONE_CHILD_EMAIL_BODY
+        CFG.email.one_child_email_body
         if len(application.children) == 1
-        else MULTIPLE_CHILDREN_EMAIL_BODY
+        else CFG.email.multiple_children_email_body
     )
     return template.format(
         summary=_summary(application),
-        chief_email=CHIEF_EMAIL,
+        chief_email=CFG.smtp.chief_email,
         amount=payment_amount(application),
-        fee=MEMBERSHIP_FEE,
-        account=BANK_ACCOUNT,
+        fee=CFG.fee.amount,
+        account=CFG.bank.account,
         payment_note=payment_message(application),
     )
 
@@ -56,7 +46,7 @@ def _guardian_message(
 ) -> EmailMessage:
     message = EmailMessage()
     message["Subject"] = "Přihláška do oddílu 48. PTO Stezka"
-    message["From"] = SENDER
+    message["From"] = CFG.smtp.sender
     message["To"] = application.guardian.email
 
     message.set_content(_guardian_email_body(application))
@@ -76,12 +66,12 @@ def _chief_message(application: Application, pdf: bytes) -> EmailMessage:
     guardian = application.guardian
     message = EmailMessage()
     message["Subject"] = f"[Stezka] Nová přihláška: {guardian.person}"
-    message["From"] = SENDER
-    message["To"] = CHIEF_EMAIL
+    message["From"] = CFG.smtp.sender
+    message["To"] = CFG.smtp.chief_email
     message["Reply-To"] = guardian.email
 
     message.set_content(
-        CHIEF_EMAIL_BODY.format(
+        CFG.email.chief_email_body.format(
             guardian=guardian.person,
             email=guardian.email,
             phone=guardian.phone,
@@ -114,8 +104,8 @@ def send_application(application: Application, pdf: bytes, qr_code: bytes) -> No
         _guardian_message(application, pdf, qr_code),
         _chief_message(application, pdf),
     ]
-    with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=30) as smtp:
+    with smtplib.SMTP(CFG.smtp.host, CFG.smtp.port, timeout=30) as smtp:
         smtp.starttls()
-        smtp.login(SENDER, _password())
+        smtp.login(CFG.smtp.sender, _password())
         for message in messages:
             smtp.send_message(message)

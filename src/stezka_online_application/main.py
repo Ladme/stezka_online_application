@@ -5,16 +5,7 @@ from dotenv import load_dotenv
 from nicegui import app, run, ui
 from pydantic import ValidationError
 
-from stezka_online_application._cfg import (
-    APP_TITLE,
-    CHIEF_EMAIL,
-    DATE_FORMAT,
-    INTRO_MANY_CHILDREN,
-    INTRO_ONE_CHILD,
-    LEGAL,
-    MEMBERSHIP_FEE,
-    SCHOOL_YEAR,
-)
+from stezka_online_application._cfg import CFG
 from stezka_online_application._elements import (
     REQUIRED,
     REQUIRED_EMAIL,
@@ -98,7 +89,7 @@ def registration_page() -> None:
             print(e)
             ui.notify(
                 "Přihlášku se nepodařilo odeslat. Zkuste to prosím znovu "
-                f"nebo nám napište na {CHIEF_EMAIL}.",
+                f"nebo nám napište na {CFG.smtp.chief_email}.",
                 type="negative",
                 multi_line=True,
             )
@@ -117,7 +108,7 @@ def registration_page() -> None:
             with ui.column().classes("gap-1"):
                 for child in application.children:
                     ui.label(
-                        f"{child.name}, nar. {child.birth_date.strftime(DATE_FORMAT)}"
+                        f"{child.name}, nar. {child.birth_date.strftime(CFG.app.date_format)}"
                     ).classes("text-sm")
 
             ui.label(
@@ -147,7 +138,7 @@ def registration_page() -> None:
             )
         dialog.open()
 
-    ui.page_title(APP_TITLE)
+    ui.page_title(CFG.app.title)
     ui.colors(primary="#2f6b3f")
     ui.add_head_html(
         '<link rel="preconnect" href="https://fonts.googleapis.com">'
@@ -164,7 +155,7 @@ def registration_page() -> None:
         with ui.column().classes("gap-1"):
             with ui.row().classes("w-full items-center gap-4 no-wrap"):
                 ui.image("/static/logo.png").classes("w-16 shrink-0")
-                ui.label(APP_TITLE).classes(
+                ui.label(CFG.app.title).classes(
                     "serif text-3xl text-stone-900 leading-tight"
                 )
 
@@ -172,10 +163,8 @@ def registration_page() -> None:
                 children_count,
                 "count",
                 one_or_many(
-                    INTRO_ONE_CHILD.format(fee=MEMBERSHIP_FEE, chief_email=CHIEF_EMAIL),
-                    INTRO_MANY_CHILDREN.format(
-                        fee=MEMBERSHIP_FEE, chief_email=CHIEF_EMAIL
-                    ),
+                    CFG.intro_one_child,
+                    CFG.intro_many_children,
                 ),
             ).classes(
                 "w-full text-sm text-stone-700 leading-relaxed text-justify hyphens-auto"
@@ -185,9 +174,7 @@ def registration_page() -> None:
             ui.card().classes("w-full p-6 shadow-none border border-stone-300"),
             section("Právní podmínky"),
         ):
-            ui.markdown(
-                LEGAL.format(fee=MEMBERSHIP_FEE, school_year=SCHOOL_YEAR)
-            ).classes(
+            ui.markdown(CFG.legal).classes(
                 "w-full pr-4 text-sm text-stone-700 leading-relaxed text-justify hyphens-auto"
             ).props("lang=cs")
 
@@ -297,7 +284,7 @@ def main() -> None:
     STATIC = Path(__file__).parent / "static"
     app.add_static_files("/static", STATIC)
 
-    ui.run(title=APP_TITLE, reload=False, favicon=STATIC / "favicon.png")
+    ui.run(title=CFG.app.title, reload=False, favicon=STATIC / "favicon.png")
 
 
 if __name__ in {"__main__", "__mp_main__"}:

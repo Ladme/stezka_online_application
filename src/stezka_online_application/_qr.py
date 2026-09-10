@@ -5,13 +5,7 @@ from datetime import date
 from PIL import Image
 from qrplatba import QRPlatbaGenerator
 
-from stezka_online_application._cfg import (
-    BANK_ACCOUNT,
-    MEMBERSHIP_FEE,
-    MESSAGE_LIMIT,
-    RECIPIENT_NAME,
-    SCHOOL_YEAR,
-)
+from stezka_online_application._cfg import CFG
 from stezka_online_application._models import Address, Application, Child, Guardian
 
 
@@ -25,21 +19,23 @@ def payment_message(application: Application) -> str:
     """Payment message trimmed to what the SPAYD format allows."""
     surname = application.guardian.person.split()[-1]
     names = ", ".join(child.name.split()[0] for child in application.children)
-    return _ascii(f"Registrace {SCHOOL_YEAR} - {surname} - {names}")[:MESSAGE_LIMIT]
+    return _ascii(f"Registrace {CFG.fee.school_year} - {surname} - {names}")[
+        : CFG.bank.message_limit
+    ]
 
 
 def payment_amount(application: Application) -> int:
     """One fee per registered child."""
-    return MEMBERSHIP_FEE * len(application.children)
+    return CFG.fee.amount * len(application.children)
 
 
 def payment_qr_code(application: Application) -> bytes:
     """The payment as a PNG QR code, for the e-mail and the confirmation dialog."""
     generator = QRPlatbaGenerator(
-        BANK_ACCOUNT,
+        CFG.bank.account,
         amount=payment_amount(application),
         currency="CZK",
-        recipient_name=RECIPIENT_NAME,
+        recipient_name=CFG.bank.recipient_name,
         message=payment_message(application),
     )
     # generate the QR code and paste it onto a white background

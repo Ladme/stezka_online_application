@@ -1,264 +1,119 @@
-APP_TITLE = "Přihláška do oddílu 48. PTO Stezka"
+import os
+import tomllib
+from pathlib import Path
+from typing import Annotated
 
-DATE_FORMAT = "%d.%m.%Y"
+from pydantic import ConfigDict, Field, TypeAdapter
+from pydantic.dataclasses import dataclass
 
-DATE_MASK = "DD.MM.YYYY"
+CONFIG_ENV_VAR = "STEZKA_APPLICATION_CONFIG"
+CONFIG_FILENAME = "config.toml"
 
-LEGAL = """
-##### I. Základní informace
+SECTION = ConfigDict(str_strip_whitespace=False, extra="forbid")
 
-1. Oddíl 48. PTO Stezka je organizační složkou spolku “Pionýr, z. s. – Pionýrská skupina Expedice” se sídlem na Údolní 963/58a, 602 00 Brno, IČO: 11698195. Spolek je registrován v rámci Jihomoravské krajské organizace Pionýra.
-2. Shromažďované údaje slouží pro registraci člena, dále pro zajištění průběhu akcí, výkon zdravotní péče na akcích apod. S osobními údaji je nakládáno ve smyslu zákona č. 110/2019 Sb. o zpracování osobních údajů.
-3. Na vedení oddílu se podílí vedoucí a instruktoři s kvalifikací a zkouškami dle vnitřních předpisů Pionýra, akreditované MŠMT. Vedoucí a instruktoři jsou dobrovolníci, kteří tuto činnost dělají zadarmo a ve svém volném čase. Na vícedenních akcích a táborech je zajištěna účast zdravotníka (akreditovaný kurz zdravotníka na zotavovacích akcích).
+Text = Annotated[str, Field(min_length=1)]
 
-##### II. Činnost oddílu
 
-4. Oddíl pořádá pravidelné schůzky, jednodenní a vícedenní výlety, letní tábory a další doplňkové kulturní a sportovní akce. Vzhledem k systematické činnosti je žádoucí maximální účast dítěte na všech uvedených akcích. Osoba vykonávající rodičovskou odpovědnost souhlasí s účastí dítěte na akcích oddílu a bude jej v oddílové činnosti podporovat.
-5. Vzhledem k uvedeným činnostem osoba vykonávající rodičovskou odpovědnost potvrzuje, že dítě nemá zdravotní či jiné potíže, které by je omezovaly v účasti na akcích, případné potíže uvede v přihlášce.
-6. Činnost oddílu je dokumentována pořizováním fotografií a audiovizuálních materiálů, které jsou archivovány a používány pro prezentaci a propagaci oddílu. Pokud osoba vykonávající rodičovskou odpovědnost nesouhlasí s pořízováním zmíněných materiálů dítěte, uvede tuto skutečnost na přihlášce. Souhlas je možné kdykoliv písemně odvolat.
-7. Osoba vykonávající rodičovskou odpovědnost bude na uvedené kontaktní e-maily informována o činnosti oddílu a plánovaných akcích. Telefonní kontakt bude využit v případě řešení aktuálních věcí týkajících se oddílové činnosti. V případě, že je účelné zasílat informace také dítěti, případně jej kontaktovat na mobil (potřeba kontaktovat někoho, kdo se zdrží cestou na schůzku apod.), můžete uvést s jejich souhlasem e-mail případně telefon.
+@dataclass(frozen=True, slots=True, config=SECTION)
+class AppSection:
+    title: Text
+    date_format: Text
+    date_mask: Text
 
-##### III. Ukončení členství
 
-8. Členství v oddíle může být ukončeno:
-    - a. rozhodnutím osoby vykonávající rodičovskou odpovědnost – písemně;
-    - b. rozhodnutím vedení oddílu – při závažném či opakovaném porušování pravidel nebo pokynů vedoucích a nedodržení vnitřních pravidel oddílu;
-    - c. nezaplacením členského příspěvku (členství se potvrzuje každoročně uhrazením členského příspěvku).
-
-##### IV. Členský poplatek na školní rok 2026/2027
-
-9. Poplatek pro školní rok {school_year} je {fee} Kč pro dětské členy. Část je poskytnuta Jihomoravské krajské organizaci Pionýra a sdružení Pionýr, část bude sloužit na provoz oddílu. Poplatek je vybírán společně s odevzdáním přihlášky do oddílu. Členové oddílu se zaplaceným poplatkem mají levnější oddílové akce, zejména tábor.
-
-#####  V. GDPR a dotační programy
-
-10. Odevzdáním přihlášky berete na vědomí, že osobní údaje dítěte (jméno, datum narození a údaje o účasti v aktivitách oddílu) budou v nezbytném rozsahu předávány Ministerstvu školství, mládeže a tělovýchovy a poskytovateli dotace OP JAK za účelem čerpání dotačních prostředků. Podrobné informace o zpracování osobních údajů jsou uvedeny v informačním sdělení na [stezka.org/msmt-gdpr](https://stezka.org/msmt-gdpr).
-"""
-
-INTRO_ONE_CHILD = """
-<p class="mb-3">Děkujeme za zájem o přihlášení vašeho dítěte do oddílu.
-Vyplněním naší online přihlášky nám ušetříte spoustu přepisování.</p>
-
-<p class="mb-3">Přečtěte si prosím pozorně informace níže a poté vyplňte
-formulář. Povinná pole jsou označena <strong>hvězdičkou</strong>.</p>
-
-<p class="mb-3">Po odeslání vám na e-mail zašleme potvrzení a PDF s vyplněnou přihláškou.
-Papírování se ale úplně vyhnout nedá – <strong>potřebujeme váš podpis</strong>.
-Přihlášku si proto stáhněte a buď ji podepište elektronicky a pošlete na
-<a href="mailto:{chief_email}" class="text-green-800 underline">{chief_email}</a>,
-nebo ji vytiskněte, podepište a <strong>přineste na nejbližší schůzku</strong>.</p>
-
-<p class="mb-3">Druhá věc je členský poplatek, který činí
-<strong>{fee} Kč</strong> na školní rok. Po odeslání přihlášky vám
-rovnou ukážeme QR kód pro platbu a pošleme ho i v e-mailu.</p>
-
-<p class="mb-3">Pokud vám z toho teď jde hlava kolem, nebojte se –
-všechno vám ještě jednou napíšeme v e-mailu :)</p>
-"""
-
-INTRO_MANY_CHILDREN = """
-<p class="mb-3">Děkujeme za zájem o přihlášení vašich dětí do oddílu.
-Vyplněním naší online přihlášky nám ušetříte spoustu přepisování.</p>
-
-<p class="mb-3">Přečtěte si prosím pozorně informace níže a poté vyplňte
-formulář. Povinná pole jsou označena <strong>hvězdičkou</strong>.</p>
-
-<p class="mb-3">Po odeslání vám na e-mail zašleme potvrzení a PDF s vyplněnými přihláškami.
-Papírování se ale úplně vyhnout nedá – <strong>potřebujeme váš podpis</strong>.
-Přihlášky si proto stáhněte a buď je podepište elektronicky a pošlete na
-<a href="mailto:{chief_email}" class="text-green-800 underline">{chief_email}</a>,
-nebo je vytiskněte, podepište a <strong>přineste na nejbližší schůzku</strong>.</p>
-
-<p class="mb-3">Druhá věc je členský poplatek, který činí
-<strong>{fee} Kč</strong> na školní rok za každé dítě. Po odeslání
-přihlášky vám rovnou ukážeme QR kód pro platbu a pošleme ho i v e-mailu.</p>
-
-<p class="mb-3">Pokud vám z toho teď jde hlava kolem, nebojte se –
-všechno vám ještě jednou napíšeme v e-mailu :)</p>
-"""
-
-RULES_ON_PRINTED_APPLICATION = (
-    "Svým podpisem potvrzuji, že jsem se seznámil(a) s podmínkami členství "
-    "v oddíle, souhlasím s nimi a s účastí dítěte na akcích oddílu. "
-    "Uvedené údaje jsou pravdivé a úplné."
-)
-
-TYPST_TEMPLATE = r"""
-#set page(paper: "a4", margin: (x: 2.2cm, y: 2cm))
-#set text(font: "New Computer Modern", size: 11pt, lang: "cs")
-#set par(justify: true)
-
-#let rule = line(length: 100%, stroke: 0.5pt + luma(180))
-
-#let heading-block(title) = block(above: 3.0em, below: 1em)[
-  #text(size: 14pt, weight: "bold")[#title]
-  #v(-1em)
-  #rule
-]
-
-#let multiline(value) = value.split("\n").join(linebreak())
-
-#let field(label, value) = grid(
-  columns: (5.2cm, 1fr),
-  gutter: 0.5em,
-  text(fill: luma(90))[#label],
-  if value == "" { text(fill: luma(140))[--] } else { multiline(value) },
-)
-
-#let yes-no(label, value) = field(label, if value { "ano" } else { "ne" })
-
-#let signature-line(caption) = block(width: 100%)[
-  #align(center)[
-    #line(length: 7cm, stroke: 0.5pt)
-    #v(-0.6em)
-    #text(size: 8pt, fill: luma(90))[#caption]
-  ]
-]
-
-#let application-page(child, guardian, contacts, rules, date) = [
-#block[
-  #grid(
-    columns: (1fr, 2.4cm),
-    gutter: 0.8cm,
-    align(horizon)[
-      #text(size: 18pt, weight: "bold")[Přihláška do oddílu 48. PTO Stezka]
-      #v(-0.6em)
-      #text(size: 9pt, fill: luma(90))[
-        Pionýr, z. s. -- Pionýrská skupina Expedice, Údolní 963/58a,
-        602 00 Brno, IČO: 11698195
-      ]
-    ],
-    align(horizon, image("src/stezka_online_application/static/logo.png", width: 100%)),
-  )
-]
-
-  #heading-block[Dítě]
-  #field("Jméno a příjmení", child.name)
-  #field("Datum narození", child.birth_date)
-  #field("Bydliště", child.address)
-  #field("Kontakt na dítě", child.contact)
-  #yes-no("Schopno účastnit se akcí", child.fit_for_activities)
-  #field("Zdravotní stav", child.health_details)
-  #field("Jiná upozornění", child.other_warnings)
-  #yes-no("Souhlas s fotografováním", child.photo_consent)
-
-  #heading-block[Osoba vykonávající rodičovskou odpovědnost]
-  #field("Jméno a příjmení", guardian.person)
-  #field("Vztah k dítěti", guardian.relation)
-  #field("Telefon", guardian.phone)
-  #field("E-mail", guardian.email)
-
-  #if contacts.len() > 0 [
-    #heading-block[Další kontakty]
-    #for contact in contacts [
-      #field(contact.relation, contact.person + contact.reach)
-    ]
-  ]
+@dataclass(frozen=True, slots=True, config=SECTION)
+class FeeSection:
+    amount: Annotated[int, Field(gt=0)]
+    school_year: Text
 
-    #heading-block[Podpisy]
-    #text(size: 11pt)[#rules]
 
-    #v(1.2em)
-    #align(right)[#child.city, dne #date]
+@dataclass(frozen=True, slots=True, config=SECTION)
+class BankSection:
+    account: Text
+    recipient_name: Text
+    message_limit: Annotated[int, Field(gt=0)]
 
-    #v(6.0em)
-    #grid(
-      columns: (1fr, 1fr),
-      gutter: 1.5em,
-      signature-line("podpis osoby vykonávající rodičovskou odpovědnost"),
-      signature-line("podpis dítěte (nepovinný)"),
-    )
-]
 
-#let data = json(bytes(sys.inputs.data))
+@dataclass(frozen=True, slots=True, config=SECTION)
+class SmtpSection:
+    host: Text
+    port: Annotated[int, Field(gt=0, lt=65536)]
+    sender: Text
+    chief_email: Text
 
-#for (index, child) in data.children.enumerate() [
-  #if index > 0 { pagebreak() }
-  #application-page(child, data.guardian, data.contacts, data.rules, data.date)
-]
-"""
 
-SMTP_HOST = "smtp.gmail.com"
-SMTP_PORT = 587
-SENDER = "klada@stezka.org"
-CHIEF_EMAIL = "ladme@seznam.cz"
+@dataclass(frozen=True, slots=True, config=SECTION)
+class TextsSection:
+    legal: Text
+    intro_one_child: Text
+    intro_many_children: Text
+    rules_on_printed_application: Text
 
 
-ONE_CHILD_EMAIL_BODY = """\
-Dobrý den,
+@dataclass(frozen=True, slots=True, config=SECTION)
+class EmailSection:
+    one_child_email_body: Text
+    multiple_children_email_body: Text
+    chief_email_body: Text
 
-děkujeme za přihlášku do oddílu 48. PTO Stezka.
 
-Přihlášené dítě:
+@dataclass(frozen=True, slots=True, config=SECTION)
+class PdfSection:
+    logo: Text
+    template: Text
 
-{summary}
 
-Zbývají dvě věci.
+@dataclass(frozen=True, slots=True, config=SECTION)
+class Config:
+    app: AppSection
+    fee: FeeSection
+    bank: BankSection
+    smtp: SmtpSection
+    texts: TextsSection
+    email: EmailSection
+    pdf: PdfSection
 
-1) Podepsat přihlášku
+    @property
+    def legal(self) -> str:
+        """The legal text, with the fee and school year substituted."""
+        return self.texts.legal.format(
+            school_year=self.fee.school_year, fee=self.fee.amount
+        )
 
-V příloze najdete PDF s vyplněnou přihláškou. Podepsat ji můžete
-elektronicky a poslat na {chief_email}, nebo ji vytisknout,
-podepsat a přinést na nejbližší schůzku.
+    @property
+    def intro_one_child(self) -> str:
+        return self.texts.intro_one_child.format(
+            chief_email=self.smtp.chief_email, fee=self.fee.amount
+        )
 
-2) Zaplatit členský příspěvek
+    @property
+    def intro_many_children(self) -> str:
+        return self.texts.intro_many_children.format(
+            chief_email=self.smtp.chief_email, fee=self.fee.amount
+        )
 
-Příspěvek je {amount} Kč. Zaplatíte naskenováním QR kódu v příloze,
-nebo převodem na účet {account} se zprávou pro příjemce
-"{payment_note}".
+    @property
+    def printed_rules(self) -> str:
+        """The declaration above the signature lines, without the block's newlines."""
+        return self.texts.rules_on_printed_application.strip()
 
-Kdyby cokoli nebylo jasné nebo jste objevili chybu či nesrovnalost,
-napište nám na {chief_email}.
 
-S pozdravem
-48. PTO Stezka
-"""
+CONFIG_ADAPTER = TypeAdapter(Config)
 
-MULTIPLE_CHILDREN_EMAIL_BODY = """\
-Dobrý den,
 
-děkujeme za přihlášku do oddílu 48. PTO Stezka.
+def config_path() -> Path:
+    """Where config.toml lives: $STEZKA_APPLICATION_CONFIG, or the project root."""
+    override = os.environ.get(CONFIG_ENV_VAR)
+    if override:
+        return Path(override)
+    return Path(__file__).resolve().parents[2] / CONFIG_FILENAME
 
-Přihlášené děti:
 
-{summary}
+def load_config(path: Path | None = None) -> Config:
+    """Read and validate the configuration. Raises if it is missing or wrong."""
+    path = path or config_path()
+    with path.open("rb") as handle:
+        return CONFIG_ADAPTER.validate_python(tomllib.load(handle))
 
-Zbývají dvě věci.
 
-1) Podepsat přihlášky
-
-V příloze najdete PDF s vyplněnými přihláškami. Každé dítě má svou
-vlastní stránku a potřebuje svůj vlastní podpis. Podepsat je můžete
-elektronicky a poslat na {chief_email}, nebo je vytisknout, podepsat
-a přinést na nejbližší schůzku.
-
-2) Zaplatit členský příspěvek
-
-Příspěvek je {fee} Kč za každé dítě, celkem tedy {amount} Kč.
-Zaplatíte naskenováním QR kódu v příloze, nebo převodem na účet
-{account} se zprávou pro příjemce "{payment_note}".
-
-Kdyby cokoli nebylo jasné nebo jste objevili chybu či nesrovnalost,
-napište nám na {chief_email}.
-
-S pozdravem
-48. PTO Stezka
-"""
-
-CHIEF_EMAIL_BODY = """\
-Nová přihláška od {guardian} ({email}, {phone}).
-
-{summary}
-
-Data jsou v příloze ve formátu YAML a CSV, nepodepsaná přihláška v PDF.
-"""
-
-BANK_ACCOUNT = "2802041575/2010"
-
-RECIPIENT_NAME = "PS Expedice"
-
-MEMBERSHIP_FEE = 1300
-
-# the limit for the MSG field of the SPAYD format
-MESSAGE_LIMIT = 60
-
-SCHOOL_YEAR = "2026/2027"
+CFG = load_config()
