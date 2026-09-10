@@ -1,4 +1,5 @@
 import base64
+import os
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -186,8 +187,11 @@ def registration_page() -> None:
         ):
             children: RepeatableSection[Child] = RepeatableSection(
                 "Přidat další dítě",
-                build_block=lambda on_remove: ChildBlock(on_remove, children_count),
+                build_block=lambda on_remove, initial: ChildBlock(
+                    on_remove, children_count, initial
+                ),
                 on_change=lambda count: setattr(children_count, "count", count),
+                draft_key="children_draft",
             )
 
         with (
@@ -210,6 +214,7 @@ def registration_page() -> None:
                 ui.input(validation=REQUIRED_NAME)
                 .classes("w-full")
                 .props("dense hide-bottom-space")
+                .bind_value(app.storage.user, "guardian_name")
             )
 
             field_label(
@@ -221,6 +226,7 @@ def registration_page() -> None:
                 ui.input(validation=REQUIRED)
                 .classes("w-full")
                 .props("dense hide-bottom-space")
+                .bind_value(app.storage.user, "guardian_relation")
             )
 
             field_label("Telefonní číslo", required=True)
@@ -228,6 +234,7 @@ def registration_page() -> None:
                 ui.input(validation=REQUIRED_PHONE)
                 .classes("w-full")
                 .props("dense hide-bottom-space inputmode=tel")
+                .bind_value(app.storage.user, "guardian_phone_number")
             )
 
             field_label("E-mailová adresa", required=True)
@@ -235,6 +242,7 @@ def registration_page() -> None:
                 ui.input(validation=REQUIRED_EMAIL)
                 .classes("w-full")
                 .props("dense hide-bottom-space inputmode=email")
+                .bind_value(app.storage.user, "guardian_email")
             )
 
         with (
@@ -247,7 +255,10 @@ def registration_page() -> None:
             ).classes("w-full text-sm text-stone-600")
 
             contacts: RepeatableSection[Contact] = RepeatableSection(
-                "Přidat další kontakt", ContactBlock, minimum=0
+                "Přidat další kontakt",
+                ContactBlock,
+                minimum=0,
+                draft_key="contacts_draft",
             )
 
         with ui.card().classes("w-full p-6 shadow-none border border-stone-300"):
@@ -291,6 +302,7 @@ def main() -> None:
         show=False,
         reload=False,
         favicon=STATIC / "favicon.png",
+        storage_secret=os.environ["STORAGE_SECRET"],
     )
 
 

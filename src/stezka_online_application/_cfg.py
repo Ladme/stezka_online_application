@@ -19,6 +19,7 @@ class AppSection:
     title: Text
     date_format: Text
     date_mask: Text
+    draft_save_interval: Annotated[int, Field(gt=0)]
 
 
 @dataclass(frozen=True, slots=True, config=SECTION)

@@ -4,6 +4,8 @@ title = "Přihláška do oddílu 48. PTO Stezka"
 date_format = "%d.%m.%Y"
 # quasar input mask matching date_format
 date_mask = "DD.MM.YYYY"
+# time between draft saves, in seconds
+draft_save_interval = 2
 
 [fee]
 # membership fee per child, in Kč
