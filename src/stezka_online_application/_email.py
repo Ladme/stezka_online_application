@@ -71,7 +71,7 @@ def _chief_message(application: Application, pdf: bytes) -> EmailMessage:
     guardian = application.guardian
     message = EmailMessage()
     message["Subject"] = f"[Stezka] Nová přihláška: {guardian.person}"
-    message["From"] = CFG.smtp.sender
+    message["From"] = formataddr((CFG.smtp.sender_name, CFG.smtp.sender))
     message["To"] = CFG.smtp.chief_email
     message["Reply-To"] = guardian.email
 
