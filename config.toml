@@ -265,7 +265,7 @@ template = '''
     #text(size: 11pt)[#rules]
 
     #v(1.2em)
-    #align(right)[#child.city, dne #date]
+    #align(right)[#date]
 
     #v(6.0em)
     #grid(
