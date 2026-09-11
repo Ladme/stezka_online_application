@@ -66,17 +66,20 @@ Vyplněním naší online přihlášky nám ušetříte spoustu přepisování.<
 formulář. Povinná pole jsou označena <strong>hvězdičkou</strong>.</p>
 
 <p class="mb-3">Po odeslání vám na e-mail zašleme potvrzení a PDF s vyplněnou přihláškou.
-Papírování se ale úplně vyhnout nedá – <strong>potřebujeme váš podpis</strong>.
-Přihlášku si proto stáhněte a buď ji podepište elektronicky a pošlete na
-<a href="mailto:{chief_email}" class="text-green-800 underline">{chief_email}</a>,
-nebo ji vytiskněte, podepište a <strong>přineste na nejbližší schůzku</strong>.</p>
+Papírování se ale úplně vyhnout nedá –
+<strong>potřebujeme váš podpis</strong>. Nejsnazší je přihlášku
+<strong>podepsat elektronicky</strong>, třeba přes
+<a href="https://podepis.bankid.cz/" target="_blank" rel="noopener"
+   class="text-green-800 underline">Podepis od BankID</a>,
+a poslat nám ji na <a href="mailto:{chief_email}" class="text-green-800 underline">{chief_email}</a>.
+Pokud se vám to nedaří, vytiskněte ji, podepište a přineste na nejbližší schůzku.</p>
 
 <p class="mb-3">Druhá věc je členský poplatek, který činí
 <strong>{fee} Kč</strong> na školní rok. Po odeslání přihlášky vám
 rovnou ukážeme QR kód pro platbu a pošleme ho i v e-mailu.</p>
 
 <p class="mb-3">Pokud vám z toho teď jde hlava kolem, nebojte se –
-všechno vám ještě jednou napíšeme v e-mailu :)</p>
+všechno vám ještě shrneme v e-mailu :)</p>
 '''
 
 intro_many_children = '''
@@ -87,17 +90,22 @@ Vyplněním naší online přihlášky nám ušetříte spoustu přepisování.<
 formulář. Povinná pole jsou označena <strong>hvězdičkou</strong>.</p>
 
 <p class="mb-3">Po odeslání vám na e-mail zašleme potvrzení a PDF s vyplněnými přihláškami.
-Papírování se ale úplně vyhnout nedá – <strong>potřebujeme váš podpis</strong>.
-Přihlášky si proto stáhněte a buď je podepište elektronicky a pošlete na
-<a href="mailto:{chief_email}" class="text-green-800 underline">{chief_email}</a>,
-nebo je vytiskněte, podepište a <strong>přineste na nejbližší schůzku</strong>.</p>
+Papírování se ale úplně vyhnout nedá –
+<strong>potřebujeme váš podpis</strong>. Nejsnazší je přihlášky
+<strong>podepsat elektronicky</strong>, třeba přes
+<a href="https://podepis.bankid.cz/" target="_blank" rel="noopener"
+   class="text-green-800 underline">Podepis od BankID</a>,
+a poslat nám je na <a href="mailto:{chief_email}" class="text-green-800 underline">{chief_email}</a>.
+Stačí nám jeden elektronický podpis na celý PDF dokument, ať už přihlašujete kolik dětí chcete.
+Pokud se vám to nedaří, přihlášky vytiskněte, <strong>každou</strong>
+podepište a přineste na nejbližší schůzku.</p>
 
 <p class="mb-3">Druhá věc je členský poplatek, který činí
 <strong>{fee} Kč</strong> na školní rok za každé dítě. Po odeslání
 přihlášky vám rovnou ukážeme QR kód pro platbu a pošleme ho i v e-mailu.</p>
 
 <p class="mb-3">Pokud vám z toho teď jde hlava kolem, nebojte se –
-všechno vám ještě jednou napíšeme v e-mailu :)</p>
+všechno vám ještě shrneme v e-mailu :)</p>
 '''
 
 # declaration printed above the signature lines on the PDF
@@ -119,13 +127,14 @@ Zbývají dvě věci.
 
 1) Podepsat přihlášku
 
-V příloze najdete PDF s vyplněnou přihláškou. Podepsat ji můžete
-elektronicky a poslat na {chief_email}, nebo ji vytisknout,
-podepsat a přinést na nejbližší schůzku.
+V příloze najdete PDF s vyplněnou přihláškou. Nejsnazší je podepsat
+ji elektronicky, třeba přes https://podepis.bankid.cz/, a poslat nám ji
+na {chief_email}. Pokud se vám to nedaří, přihlášku vytiskněte,
+podepište a přineste na nejbližší schůzku.
 
-2) Zaplatit členský příspěvek
+2) Zaplatit členský poplatek
 
-Příspěvek je {amount} Kč. Zaplatíte naskenováním QR kódu v příloze,
+Poplatek je {amount} Kč. Zaplatíte naskenováním QR kódu v příloze,
 nebo převodem na účet {account} se zprávou pro příjemce
 "{payment_note}".
 
@@ -149,14 +158,16 @@ Zbývají dvě věci.
 
 1) Podepsat přihlášky
 
-V příloze najdete PDF s vyplněnými přihláškami. Každé dítě má svou
-vlastní stránku a potřebuje svůj vlastní podpis. Podepsat je můžete
-elektronicky a poslat na {chief_email}, nebo je vytisknout, podepsat
-a přinést na nejbližší schůzku.
+V příloze najdete PDF s vyplněnými přihláškami. Nejsnazší je podepsat
+je elektronicky, třeba přes https://podepis.bankid.cz/, a poslat nám je
+na {chief_email} – elektronický podpis stačí jeden na celé PDF.
+Pokud se vám to nedaří, přihlášky vytiskněte a podepište; na papíře už
+potřebujeme podpis na každé stránce zvlášť, každé dítě má svou vlastní.
+Podepsané přihlášky pak přineste na nejbližší schůzku.
 
-2) Zaplatit členský příspěvek
+2) Zaplatit členský poplatek
 
-Příspěvek je {fee} Kč za každé dítě, celkem tedy {amount} Kč.
+Poplatek je {fee} Kč za každé dítě, celkem tedy {amount} Kč.
 Zaplatíte naskenováním QR kódu v příloze, nebo převodem na účet
 {account} se zprávou pro příjemce "{payment_note}".
 

@@ -5,7 +5,10 @@ from email.message import EmailMessage
 from stezka_online_application._cfg import CFG
 from stezka_online_application._export import to_csv, to_yaml
 from stezka_online_application._models import Application
-from stezka_online_application._qr import payment_amount, payment_message
+from stezka_online_application._qr import (
+    payment_amount,
+    payment_message,
+)
 
 
 def _password() -> str:
