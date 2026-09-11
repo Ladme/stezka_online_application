@@ -186,7 +186,7 @@ def registration_page() -> None:
                     CFG.intro_many_children,
                 ),
             ).classes(
-                "w-full text-sm text-stone-700 leading-relaxed text-justify hyphens-auto"
+                "w-full text-sm text-stone-700 leading-relaxed text-justify hyphens-none"
             ).props("lang=cs")
 
         with (
@@ -194,7 +194,7 @@ def registration_page() -> None:
             section("Právní podmínky"),
         ):
             ui.markdown(CFG.legal).classes(
-                "w-full pr-4 text-sm text-stone-700 leading-relaxed text-justify hyphens-auto"
+                "w-full pr-4 text-sm text-stone-700 leading-relaxed text-justify hyphens-none"
             ).props("lang=cs")
 
         with (

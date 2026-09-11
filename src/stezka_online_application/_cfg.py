@@ -41,6 +41,7 @@ class SmtpSection:
     host: Text
     port: Annotated[int, Field(gt=0, lt=65536)]
     sender: Text
+    sender_name: Text
     chief_email: Text
 
 

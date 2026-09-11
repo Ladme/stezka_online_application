@@ -26,6 +26,7 @@ host = "smtp.gmail.com"
 port = 587
 # the password to sender is read from SMTP_PASSWORD in .env
 sender = "klada@stezka.org"
+sender_name = "48. PTO Stezka"
 chief_email = "ladme@seznam.cz"
 
 [texts]
@@ -71,7 +72,7 @@ Papírování se ale úplně vyhnout nedá –
 <strong>potřebujeme váš podpis</strong>. Nejsnazší je přihlášku
 <strong>podepsat elektronicky</strong>, třeba přes
 <a href="https://podepis.bankid.cz/" target="_blank" rel="noopener"
-   class="text-green-800 underline">Podepis od BankID</a>,
+   class="text-green-800 underline">Elektronický podpis Bank iD</a>,
 a poslat nám ji na <a href="mailto:{chief_email}" class="text-green-800 underline">{chief_email}</a>.
 Pokud se vám to nedaří, vytiskněte ji, podepište a přineste na nejbližší schůzku.</p>
 
@@ -95,7 +96,7 @@ Papírování se ale úplně vyhnout nedá –
 <strong>potřebujeme váš podpis</strong>. Nejsnazší je přihlášky
 <strong>podepsat elektronicky</strong>, třeba přes
 <a href="https://podepis.bankid.cz/" target="_blank" rel="noopener"
-   class="text-green-800 underline">Podepis od BankID</a>,
+   class="text-green-800 underline">Elektronický podpis Bank iD</a>,
 a poslat nám je na <a href="mailto:{chief_email}" class="text-green-800 underline">{chief_email}</a>.
 Stačí nám jeden elektronický podpis na celý PDF dokument, ať už přihlašujete kolik dětí chcete.
 Pokud se vám to nedaří, přihlášky vytiskněte, <strong>každou</strong>

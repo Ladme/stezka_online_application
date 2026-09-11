@@ -1,6 +1,7 @@
 import os
 import smtplib
 from email.message import EmailMessage
+from email.utils import formataddr
 
 from stezka_online_application._cfg import CFG
 from stezka_online_application._export import to_csv, to_yaml
@@ -49,8 +50,9 @@ def _guardian_message(
 ) -> EmailMessage:
     message = EmailMessage()
     message["Subject"] = "Přihláška do oddílu 48. PTO Stezka"
-    message["From"] = CFG.smtp.sender
+    message["From"] = formataddr((CFG.smtp.sender_name, CFG.smtp.sender))
     message["To"] = application.guardian.email
+    message["Reply-To"] = CFG.smtp.chief_email
 
     message.set_content(_guardian_email_body(application))
 
