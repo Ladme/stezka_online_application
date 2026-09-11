@@ -1,12 +1,12 @@
 import io
 import unicodedata
-from datetime import date
+from collections.abc import Callable
 
 from PIL import Image
 from qrplatba import QRPlatbaGenerator
 
 from stezka_online_application._cfg import CFG
-from stezka_online_application._models import Address, Application, Child, Guardian
+from stezka_online_application._models import Application
 
 
 def _ascii(value: str) -> str:
@@ -15,13 +15,39 @@ def _ascii(value: str) -> str:
     return decomposed.encode("ascii", "ignore").decode("ascii")
 
 
+def _full_name(name: str) -> str:
+    return name
+
+
+def _short_surnames(name: str) -> str:
+    """Jan Novák Dvořák -> Jan N D"""
+    first, *surnames = name.split()
+    return " ".join([first, *(f"{surname[0]}" for surname in surnames)])
+
+
+def _initials(name: str) -> str:
+    """Jan Novák Dvořák -> J N D."""
+    return " ".join(f"{part[0]}" for part in name.split())
+
+
 def payment_message(application: Application) -> str:
-    """Payment message trimmed to what the SPAYD format allows."""
-    surname = application.guardian.person.split()[-1]
-    names = ", ".join(child.name.split()[0] for child in application.children)
-    return _ascii(f"Registrace {CFG.fee.school_year} - {surname} - {names}")[
-        : CFG.bank.message_limit
-    ]
+    """Payment message naming every child, shortened until it fits the SPAYD limit."""
+    prefix = f"Registrace {CFG.fee.school_year} - "
+    shortenings: tuple[Callable[[str], str], ...] = (
+        _full_name,
+        _short_surnames,
+        _initials,
+    )
+
+    message = ""
+    for shorten in shortenings:
+        message = _ascii(
+            prefix + ", ".join(shorten(child.name) for child in application.children)
+        )
+        if len(message) <= CFG.bank.message_limit:
+            return message
+
+    return message[: CFG.bank.message_limit]
 
 
 def payment_amount(application: Application) -> int:
@@ -51,46 +77,3 @@ def payment_qr_code(application: Application) -> bytes:
     buffer = io.BytesIO()
     canvas.save(buffer, format="PNG")
     return buffer.getvalue()
-
-
-if __name__ == "__main__":
-    with open("qr.png", "wb") as file:
-        bytes = payment_qr_code(
-            Application(
-                children=(
-                    Child(
-                        name="Jan Novák",
-                        birth_date=date(2015, 12, 23),
-                        address=Address(
-                            "Velice dlouhý název ulice pro testování zalamování textu 134/25a",
-                            "Žatec",
-                            "666 66",
-                        ),
-                        fit_for_activities=True,
-                        health_details="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-                        other_warnings="Neplavec. Nemá rád výšky. Nemá rád jeskyně. Nemá rád padající listí. Nemá rád smetanu. Nemá rád, když na něj lidi mluví. Nemá rád cestování hromadnou dopravou.",
-                        contact="rainbowdash6767@seznam.cz",
-                        photo_consent=True,
-                    ),
-                    Child(
-                        name="Pavlína Nováková",
-                        birth_date=date(2019, 1, 4),
-                        address=Address("Žitná 14", "Žatec", "666 66"),
-                        fit_for_activities=True,
-                        health_details="",
-                        other_warnings="",
-                        contact="",
-                        photo_consent=False,
-                    ),
-                ),
-                guardian=Guardian(
-                    person="Jana Nováková",
-                    relation_to_child="matka",
-                    phone="+420 123 456 789",
-                    email="jana.novakova.1987@gmail.com",
-                ),
-                contacts=(),
-            )
-        )
-
-        file.write(bytes)
