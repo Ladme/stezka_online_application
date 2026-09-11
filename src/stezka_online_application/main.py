@@ -142,12 +142,30 @@ def registration_page() -> None:
     ui.page_title(CFG.app.title)
     ui.colors(primary="#2f6b3f")
     ui.add_head_html(
-        '<link rel="preconnect" href="https://fonts.googleapis.com">'
-        '<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600'
-        '&family=Source+Sans+3:wght@400;500&display=swap" rel="stylesheet">'
-        '<style>body{font-family:"Source Sans 3",sans-serif}'
-        '.serif{font-family:"Source Serif 4",serif}</style>'
+        """
+            <link rel="preload" as="font" type="font/woff2" crossorigin
+                  href="/static/fonts/SourceSans3-Regular.ttf.woff2">
+            <style>
+            @font-face {
+              font-family: "Source Sans Pro";
+              src: url("/static/fonts/SourceSans3-Regular.ttf.woff2") format("woff2");
+              font-weight: 400;
+              font-style: normal;
+              font-display: swap;
+            }
+            @font-face {
+              font-family: "Source Sans Pro";
+              src: url("/static/fonts/SourceSans3-Semibold.ttf.woff2") format("woff2");
+              font-weight: 600;
+              font-style: normal;
+              font-display: swap;
+            }
+            body { font-family: "Source Sans Pro", sans-serif; }
+            .title { font-family: "Source Sans Pro", sans-serif; font-weight: 600; }
+            </style>
+            """
     )
+
     ui.query("body").classes("bg-stone-100")
 
     children_count = ChildCount()
@@ -157,7 +175,7 @@ def registration_page() -> None:
             with ui.row().classes("w-full items-center gap-4 no-wrap"):
                 ui.image("/static/logo.png").classes("w-16 shrink-0")
                 ui.label(CFG.app.title).classes(
-                    "serif text-3xl text-stone-900 leading-tight"
+                    "title text-3xl text-stone-900 leading-tight"
                 )
 
             ui.html().bind_content_from(

@@ -74,6 +74,7 @@ def build_pdf(application: Application) -> bytes:
         "date": czech_date(date.today()),  # noqa: DTZ011
         "logo": CFG.pdf.logo,
     }
+
     return typst.compile(
         CFG.pdf.template.encode(),
         sys_inputs={"data": json.dumps(data, ensure_ascii=False)},
