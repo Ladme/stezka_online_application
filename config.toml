@@ -6,6 +6,7 @@ date_format = "%d.%m.%Y"
 date_mask = "DD.MM.YYYY"
 # time between draft saves, in seconds
 draft_save_interval = 2
+port = 9967
 
 [fee]
 # membership fee per child, in Kč
@@ -23,8 +24,8 @@ message_limit = 60
 [smtp]
 host = "smtp.gmail.com"
 port = 587
+# the password to sender is read from SMTP_PASSWORD in .env
 sender = "klada@stezka.org"
-# the password is read from SMTP_PASSWORD in .env
 chief_email = "ladme@seznam.cz"
 
 [texts]

@@ -20,6 +20,7 @@ class AppSection:
     date_format: Text
     date_mask: Text
     draft_save_interval: Annotated[int, Field(gt=0)]
+    port: Annotated[int, Field(gt=0, lt=65536)]
 
 
 @dataclass(frozen=True, slots=True, config=SECTION)

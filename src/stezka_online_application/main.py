@@ -316,7 +316,7 @@ def main() -> None:
     ui.run(
         title=CFG.app.title,
         host="0.0.0.0",
-        port=9967,
+        port=CFG.app.port,
         show=False,
         reload=False,
         favicon=STATIC / "favicon.png",
