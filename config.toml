@@ -25,9 +25,9 @@ message_limit = 60
 host = "smtp.gmail.com"
 port = 587
 # the password to sender is read from SMTP_PASSWORD in .env
-sender = "klada@stezka.org"
+sender = "e-pip@stezka.org"
 sender_name = "48. PTO Stezka"
-chief_email = "ladme@seznam.cz"
+chief_email = "zuby@stezka.org"
 
 [texts]
 legal = '''
