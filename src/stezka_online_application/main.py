@@ -1,11 +1,15 @@
+import asyncio
 import base64
 import os
 from pathlib import Path
 
 from dotenv import load_dotenv
-from nicegui import app, run, ui
+from fastapi import Request
+from fastapi.responses import PlainTextResponse, Response
+from nicegui import app, events, run, ui
 from pydantic import ValidationError
 
+from stezka_online_application._captcha import verify_altcha
 from stezka_online_application._cfg import CFG
 from stezka_online_application._elements import (
     REQUIRED,
@@ -31,8 +35,22 @@ from stezka_online_application._pdf import build_pdf
 from stezka_online_application._qr import payment_amount, payment_qr_code
 
 
+@app.get("/robots.txt")
+def robots_txt() -> PlainTextResponse:
+    """Tell well-behaved crawlers to stay out entirely."""
+    return PlainTextResponse("User-agent: *\nDisallow: /\n")
+
+
+@app.middleware("http")
+async def add_noindex_header(request: Request, call_next) -> Response:
+    """Discourage search engines from indexing this internal form."""
+    response = await call_next(request)
+    response.headers["X-Robots-Tag"] = "noindex, nofollow, noarchive"
+    return response
+
+
 @ui.page("/")
-def registration_page() -> None:
+async def registration_page() -> None:
 
     def form_is_valid() -> bool:
         """Run every field's own validation and mark what needs fixing."""
@@ -139,10 +157,23 @@ def registration_page() -> None:
             )
         dialog.open()
 
+    verified = asyncio.Event()
+
+    def on_altcha_statechange(event: events.GenericEventArguments) -> None:
+        """Unblock the page once the proof-of-work challenge is solved and checks out."""
+        state = event.args.get("state")
+        if state == "verified" and verify_altcha(event.args.get("payload", "")):
+            verified.set()
+        elif state in {"error", "expired"}:
+            altcha_error.set_visibility(True)
+
     ui.page_title(CFG.app.title)
     ui.colors(primary="#2f6b3f")
     ui.add_head_html(
         """
+            <meta name="robots" content="noindex, nofollow, noarchive">
+            <script async defer type="module"
+                    src="https://cdn.jsdelivr.net/npm/altcha/dist/altcha.min.js"></script>
             <link rel="preload" as="font" type="font/woff2" crossorigin
                   href="/static/fonts/SourceSans3-Regular.ttf.woff2">
             <style>
@@ -168,9 +199,32 @@ def registration_page() -> None:
 
     ui.query("body").classes("bg-stone-100")
 
+    await ui.context.client.connected()
+
     children_count = ChildCount()
 
     with ui.column().classes("w-full max-w-2xl mx-auto p-4 md:p-8 gap-6"):
+        with ui.card().classes(
+            "w-full p-6 shadow-none border border-stone-300 items-center gap-3"
+        ) as gate:
+            ui.label("Ověřujeme, že nejste robot...").classes(
+                "text-sm text-stone-600"
+            )
+            ui.element("altcha-widget").props(
+                "challengeurl=/altcha-challenge auto=onload hidelogo"
+            ).on(
+                "statechange",
+                on_altcha_statechange,
+                js_handler="(e) => emit(e.detail)",
+            )
+            altcha_error = ui.label(
+                "Ověření se nezdařilo. Obnovte prosím stránku a zkuste to znovu."
+            ).classes("text-xs text-red-700")
+            altcha_error.set_visibility(False)
+
+        await verified.wait()
+        gate.delete()
+
         with ui.column().classes("gap-1"):
             with ui.row().classes("w-full items-center gap-4 no-wrap"):
                 ui.image("/static/logo.png").classes("w-16 shrink-0")

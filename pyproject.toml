@@ -5,6 +5,7 @@ description = "Online application for our children's camping club"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "altcha>=2.1.0",
     "nicegui>=3.16.0",
     "pillow>=12.3.0",
     "pydantic[email]>=2.13.5",

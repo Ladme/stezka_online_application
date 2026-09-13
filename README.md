@@ -24,6 +24,7 @@ git clone https://github.com/Ladme/stezka_online_application.git
 
    - `SMTP_PASSWORD` - heslo k SMTP serveru pro účet z `smtp.sender`,
    - `STORAGE_SECRET` - tajný klíč, kterým se podepisuje session cookie. Vygeneruj ho třeba pomocí:
+   - `ALTCHA_HMAC_KEY` - tajný klíč, kterým se podepisují ALTCHA výzvy (ochrana formuláře proti botům). Vygeneruj ho stejným způsobem:
 
 ```bash
 python -c "import secrets; print(secrets.token_urlsafe(32))"
