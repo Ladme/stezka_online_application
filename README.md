@@ -1,6 +1,6 @@
 ## E-přihláška do 48. PTO Stezka
 
-Interní aplikace [našeho oddílu](https://stezka.org/) pro online přihlašování nových členů.
+Aplikace [našeho oddílu](https://stezka.org/) pro online přihlašování nových členů.
 
 ### Spuštění
 
@@ -9,13 +9,13 @@ Interní aplikace [našeho oddílu](https://stezka.org/) pro online přihlašov�
 2. Naklonuj tento repozitář:
 
 ```bash
-git clone git@github.com:Ladme/stezka_online_application.git
+git clone git@github.com:48ptostezka/stezka_online_application.git
 ```
 
 nebo
 
 ```bash
-git clone https://github.com/Ladme/stezka_online_application.git
+git clone https://github.com/48ptostezka/stezka_online_application.git
 ```
 
 3. V `config.toml` nastav účet, ze kterého se budou posílat e-maily (`smtp.sender`) a e-mail náčelníka (`smtp.chief_email`) - tam se budou posílat data z přihlášek a tam mají rodiče posílat podepsané přihlášky.

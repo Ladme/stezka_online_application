@@ -207,9 +207,7 @@ async def registration_page() -> None:
         with ui.card().classes(
             "w-full p-6 shadow-none border border-stone-300 items-center gap-3"
         ) as gate:
-            ui.label("Ověřujeme, že nejste robot...").classes(
-                "text-sm text-stone-600"
-            )
+            ui.label("Ověřujeme, že nejste robot...").classes("text-sm text-stone-600")
             ui.element("altcha-widget").props(
                 "challengeurl=/altcha-challenge auto=onload hidelogo"
             ).on(
